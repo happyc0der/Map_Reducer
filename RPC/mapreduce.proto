@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+// python -m grpc_tools.protoc -I.\RPC  --python_out=. --pyi_out=.\ --grpc_python_out=. .\RPC\mapreduce.proto
+
+package mapreduce;
+
+// The message for requesting a map operation
+message MapRequest {
+  repeated string data = 1; // The data slice for the mapper to process
+  repeated string centroids = 2; // The current list of centroids
+}
+
+// The response from a map operation
+message MapResponse {
+  map<string, string> results = 1; // The intermediate key-value pairs
+}
+
+//Start a Reduce operation
+message StartReduceRequest{
+  bool Flag=1;
+}
+
+message StartReduceResponse{
+  bool ok=1;
+}
+
+// The message for requesting a reduce operation
+message ReduceRequest {
+  string key = 1; // The centroid ID
+  repeated string values = 2; // The list of data points associated with the centroid
+}
+
+// The response from a reduce operation
+message ReduceResponse {
+  string key = 1; // The centroid ID
+  string newCentroid = 2; // The new centroid position
+}
+
+// The service definition
+service MapReduceService {
+  rpc Map(MapRequest) returns (MapResponse);
+  rpc Reduce(ReduceRequest) returns (ReduceResponse);
+  rpc StartReduce(StartReduceRequest) returns (StartReduceResponse);
+}
