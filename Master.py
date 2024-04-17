@@ -26,8 +26,12 @@ def compose_map_request(begin, end, centroids, mapper_port, number_of_reducers):
     print(f"📨 Recieved a Map Response from PORT {mapper_port}: status {response.status}")
     
 def compose_reduce_request(reducer_port, number_of_mappers):
-    request = mapreduce_pb2.StartReduceRequest()
-    request.num_mappers = number_of_mappers
+    try:
+        request = mapreduce_pb2.StartReduceRequest()
+    except Exception as e:
+        print("❌ Error in Start Reduce Request")
+        print(e)
+
     partition = 4040 - reducer_port 
     
     #TODO: Add the partitions in case of reducer failure
@@ -36,6 +40,7 @@ def compose_reduce_request(reducer_port, number_of_mappers):
     channel = grpc.insecure_channel(f'localhost:{reducer_port}')
     stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
     response = stub.StartReduce(request)
+    print(response)
     print(f"📨 Recieved a Reduce Response from PORT {reducer_port}: status {response.ok}")
 
     return request
@@ -96,7 +101,7 @@ if __name__ == "__main__":
             mapper_thread.join()
         
         reducer_threads = []
-        
+        print(len(reducer_ports))
         for port_index in range(len(reducer_ports)):
             print("💌 Sending Reduce request to PORT",reducer_ports[port_index])
             reducer_threads.append(threading.Thread(target=compose_reduce_request, args=(reducer_ports[port_index], Number_of_mappers)))
@@ -104,6 +109,10 @@ if __name__ == "__main__":
 
         for reducer_thread in reducer_threads:
             reducer_thread.join()
-    
+
+
+        #TODO: Read the final centroids from the reducer files and update the centroids list
+        new_centroids = []
+
 
 

@@ -8,11 +8,7 @@ service MapReduceService {
   rpc Map(MapRequest) returns (MapResponse);
   rpc Reduce(ReduceRequest) returns (ReduceResponse);
   rpc StartReduce(StartReduceRequest) returns (StartReduceResponse);
-}
-
-message point{
-  float x=1;
-  float y=2;
+  rpc returnCentroid(returnReduce) returns (returnReduceReponse);
 }
 
 message MapRequest {
@@ -37,6 +33,19 @@ message StartReduceResponse{
 
 message ReduceRequest {
   repeated int32 partitions = 1;
+}
+
+message returnReduce{
+  int32 ok = 1;
+}
+
+message returnReduceResponse{
+  int32 ok = 1;
+}
+
+message point{
+  float x=1;
+  float y=2;
 }
 
 message centroid_values{
