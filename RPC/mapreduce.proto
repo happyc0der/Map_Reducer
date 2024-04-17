@@ -4,41 +4,43 @@ syntax = "proto3";
 
 package mapreduce;
 
-// The message for requesting a map operation
-message MapRequest {
-  repeated string data = 1; // The data slice for the mapper to process
-  repeated string centroids = 2; // The current list of centroids
-}
-
-// The response from a map operation
-message MapResponse {
-  map<string, string> results = 1; // The intermediate key-value pairs
-}
-
-//Start a Reduce operation
-message StartReduceRequest{
-  bool Flag=1;
-}
-
-message StartReduceResponse{
-  bool ok=1;
-}
-
-// The message for requesting a reduce operation
-message ReduceRequest {
-  string key = 1; // The centroid ID
-  repeated string values = 2; // The list of data points associated with the centroid
-}
-
-// The response from a reduce operation
-message ReduceResponse {
-  string key = 1; // The centroid ID
-  string newCentroid = 2; // The new centroid position
-}
-
-// The service definition
 service MapReduceService {
   rpc Map(MapRequest) returns (MapResponse);
   rpc Reduce(ReduceRequest) returns (ReduceResponse);
   rpc StartReduce(StartReduceRequest) returns (StartReduceResponse);
 }
+
+message point{
+  float x=1;
+  float y=2;
+}
+
+message MapRequest {
+  int32 begin = 1;
+  int32 end = 2;
+  repeated point centroids = 3;
+  int32 num_reducers = 4;
+}
+
+message MapResponse {
+  string status = 1;
+}
+
+message StartReduceRequest{
+  int32 Flag=1;
+}
+
+message StartReduceResponse{
+  int32 ok=1;
+}
+
+message ReduceRequest {
+  string key = 1;
+  repeated string values = 2; 
+}
+
+message ReduceResponse {
+  string key = 1;
+  string newCentroid = 2;
+}
+

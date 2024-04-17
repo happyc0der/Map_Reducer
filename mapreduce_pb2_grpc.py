@@ -6,8 +6,7 @@ import mapreduce_pb2 as mapreduce__pb2
 
 
 class MapReduceServiceStub(object):
-    """The service definition
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
         """Constructor.
@@ -33,8 +32,7 @@ class MapReduceServiceStub(object):
 
 
 class MapReduceServiceServicer(object):
-    """The service definition
-    """
+    """Missing associated documentation comment in .proto file."""
 
     def Map(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -80,8 +78,7 @@ def add_MapReduceServiceServicer_to_server(servicer, server):
 
  # This class is part of an EXPERIMENTAL API.
 class MapReduceService(object):
-    """The service definition
-    """
+    """Missing associated documentation comment in .proto file."""
 
     @staticmethod
     def Map(request,

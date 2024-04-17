@@ -1,10 +1,10 @@
 import subprocess
 import sys
 
-virtualenv_python = r'C:\Users\KESHAV\environments\ThreeTen\Scripts\python.exe'
-master_script_path = r'C:\Users\KESHAV\Desktop\TOFIN\College\DSCD\Map_Reducer\Master.py'
-mapper_script_path = r'C:\Users\KESHAV\Desktop\TOFIN\College\DSCD\Map_Reducer\Mapper.py'
-reducer_script_path = r'C:\Users\KESHAV\Desktop\TOFIN\College\DSCD\Map_Reducer\Reducer.py'
+virtualenv_python = r'python.exe'
+master_script_path = r'./Master.py'
+mapper_script_path = r'./Mapper.py'
+reducer_script_path = r'./Reducer.py'
 
 def run_process(script_path, *args):
     cmd = ['start', 'cmd.exe', '/k', virtualenv_python, script_path] + list(map(str, args))
@@ -14,7 +14,7 @@ def run_process(script_path, *args):
 def run_mapper(num_mappers):
     return [run_process(mapper_script_path, i) for i in range(num_mappers)]
 
-def run_reducer(num_reducers,num_mappers):
+def run_reducer(num_reducers):
     return [run_process(reducer_script_path, i) for i in range(num_reducers)]
 
 def run_master(num_mappers, num_reducers, num_centroids, num_iterations):
@@ -42,8 +42,10 @@ if __name__ == "__main__":
         print("Usage: run.py <num_mappers> <num_reducers> <num_centroids> <num_iterations>")
         sys.exit(1)
 
+
     num_mappers = int(sys.argv[1])
     num_reducers = int(sys.argv[2])
     num_centroids = int(sys.argv[3])
     num_iterations = int(sys.argv[4])
+    print(num_mappers, num_reducers, num_centroids, num_iterations)
     main(num_mappers, num_reducers, num_centroids, num_iterations)

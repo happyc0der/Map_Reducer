@@ -1,42 +1,47 @@
 from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class point(_message.Message):
+    __slots__ = ("x", "y")
+    X_FIELD_NUMBER: _ClassVar[int]
+    Y_FIELD_NUMBER: _ClassVar[int]
+    x: float
+    y: float
+    def __init__(self, x: _Optional[float] = ..., y: _Optional[float] = ...) -> None: ...
+
 class MapRequest(_message.Message):
-    __slots__ = ("data", "centroids")
-    DATA_FIELD_NUMBER: _ClassVar[int]
+    __slots__ = ("begin", "end", "centroids", "num_reducers")
+    BEGIN_FIELD_NUMBER: _ClassVar[int]
+    END_FIELD_NUMBER: _ClassVar[int]
     CENTROIDS_FIELD_NUMBER: _ClassVar[int]
-    data: _containers.RepeatedScalarFieldContainer[str]
-    centroids: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, data: _Optional[_Iterable[str]] = ..., centroids: _Optional[_Iterable[str]] = ...) -> None: ...
+    NUM_REDUCERS_FIELD_NUMBER: _ClassVar[int]
+    begin: int
+    end: int
+    centroids: _containers.RepeatedCompositeFieldContainer[point]
+    num_reducers: int
+    def __init__(self, begin: _Optional[int] = ..., end: _Optional[int] = ..., centroids: _Optional[_Iterable[_Union[point, _Mapping]]] = ..., num_reducers: _Optional[int] = ...) -> None: ...
 
 class MapResponse(_message.Message):
-    __slots__ = ("results",)
-    class ResultsEntry(_message.Message):
-        __slots__ = ("key", "value")
-        KEY_FIELD_NUMBER: _ClassVar[int]
-        VALUE_FIELD_NUMBER: _ClassVar[int]
-        key: str
-        value: str
-        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
-    RESULTS_FIELD_NUMBER: _ClassVar[int]
-    results: _containers.ScalarMap[str, str]
-    def __init__(self, results: _Optional[_Mapping[str, str]] = ...) -> None: ...
+    __slots__ = ("status",)
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    status: str
+    def __init__(self, status: _Optional[str] = ...) -> None: ...
 
 class StartReduceRequest(_message.Message):
     __slots__ = ("Flag",)
     FLAG_FIELD_NUMBER: _ClassVar[int]
-    Flag: bool
-    def __init__(self, Flag: bool = ...) -> None: ...
+    Flag: int
+    def __init__(self, Flag: _Optional[int] = ...) -> None: ...
 
 class StartReduceResponse(_message.Message):
     __slots__ = ("ok",)
     OK_FIELD_NUMBER: _ClassVar[int]
-    ok: bool
-    def __init__(self, ok: bool = ...) -> None: ...
+    ok: int
+    def __init__(self, ok: _Optional[int] = ...) -> None: ...
 
 class ReduceRequest(_message.Message):
     __slots__ = ("key", "values")

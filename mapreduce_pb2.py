@@ -14,29 +14,27 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fmapreduce.proto\x12\tmapreduce\"-\n\nMapRequest\x12\x0c\n\x04\x64\x61ta\x18\x01 \x03(\t\x12\x11\n\tcentroids\x18\x02 \x03(\t\"s\n\x0bMapResponse\x12\x34\n\x07results\x18\x01 \x03(\x0b\x32#.mapreduce.MapResponse.ResultsEntry\x1a.\n\x0cResultsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\r\n\x05value\x18\x02 \x01(\t:\x02\x38\x01\"\"\n\x12StartReduceRequest\x12\x0c\n\x04\x46lag\x18\x01 \x01(\x08\"!\n\x13StartReduceResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\",\n\rReduceRequest\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0e\n\x06values\x18\x02 \x03(\t\"2\n\x0eReduceResponse\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x13\n\x0bnewCentroid\x18\x02 \x01(\t2\xd5\x01\n\x10MapReduceService\x12\x34\n\x03Map\x12\x15.mapreduce.MapRequest\x1a\x16.mapreduce.MapResponse\x12=\n\x06Reduce\x12\x18.mapreduce.ReduceRequest\x1a\x19.mapreduce.ReduceResponse\x12L\n\x0bStartReduce\x12\x1d.mapreduce.StartReduceRequest\x1a\x1e.mapreduce.StartReduceResponseb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0fmapreduce.proto\x12\tmapreduce\"\x1d\n\x05point\x12\t\n\x01x\x18\x01 \x01(\x02\x12\t\n\x01y\x18\x02 \x01(\x02\"c\n\nMapRequest\x12\r\n\x05\x62\x65gin\x18\x01 \x01(\x05\x12\x0b\n\x03\x65nd\x18\x02 \x01(\x05\x12#\n\tcentroids\x18\x03 \x03(\x0b\x32\x10.mapreduce.point\x12\x14\n\x0cnum_reducers\x18\x04 \x01(\x05\"\x1d\n\x0bMapResponse\x12\x0e\n\x06status\x18\x01 \x01(\t\"\"\n\x12StartReduceRequest\x12\x0c\n\x04\x46lag\x18\x01 \x01(\x05\"!\n\x13StartReduceResponse\x12\n\n\x02ok\x18\x01 \x01(\x05\",\n\rReduceRequest\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x0e\n\x06values\x18\x02 \x03(\t\"2\n\x0eReduceResponse\x12\x0b\n\x03key\x18\x01 \x01(\t\x12\x13\n\x0bnewCentroid\x18\x02 \x01(\t2\xd5\x01\n\x10MapReduceService\x12\x34\n\x03Map\x12\x15.mapreduce.MapRequest\x1a\x16.mapreduce.MapResponse\x12=\n\x06Reduce\x12\x18.mapreduce.ReduceRequest\x1a\x19.mapreduce.ReduceResponse\x12L\n\x0bStartReduce\x12\x1d.mapreduce.StartReduceRequest\x1a\x1e.mapreduce.StartReduceResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'mapreduce_pb2', _globals)
 if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
-  _globals['_MAPRESPONSE_RESULTSENTRY']._options = None
-  _globals['_MAPRESPONSE_RESULTSENTRY']._serialized_options = b'8\001'
-  _globals['_MAPREQUEST']._serialized_start=30
-  _globals['_MAPREQUEST']._serialized_end=75
-  _globals['_MAPRESPONSE']._serialized_start=77
-  _globals['_MAPRESPONSE']._serialized_end=192
-  _globals['_MAPRESPONSE_RESULTSENTRY']._serialized_start=146
-  _globals['_MAPRESPONSE_RESULTSENTRY']._serialized_end=192
-  _globals['_STARTREDUCEREQUEST']._serialized_start=194
-  _globals['_STARTREDUCEREQUEST']._serialized_end=228
-  _globals['_STARTREDUCERESPONSE']._serialized_start=230
-  _globals['_STARTREDUCERESPONSE']._serialized_end=263
-  _globals['_REDUCEREQUEST']._serialized_start=265
-  _globals['_REDUCEREQUEST']._serialized_end=309
-  _globals['_REDUCERESPONSE']._serialized_start=311
-  _globals['_REDUCERESPONSE']._serialized_end=361
-  _globals['_MAPREDUCESERVICE']._serialized_start=364
-  _globals['_MAPREDUCESERVICE']._serialized_end=577
+  _globals['_POINT']._serialized_start=30
+  _globals['_POINT']._serialized_end=59
+  _globals['_MAPREQUEST']._serialized_start=61
+  _globals['_MAPREQUEST']._serialized_end=160
+  _globals['_MAPRESPONSE']._serialized_start=162
+  _globals['_MAPRESPONSE']._serialized_end=191
+  _globals['_STARTREDUCEREQUEST']._serialized_start=193
+  _globals['_STARTREDUCEREQUEST']._serialized_end=227
+  _globals['_STARTREDUCERESPONSE']._serialized_start=229
+  _globals['_STARTREDUCERESPONSE']._serialized_end=262
+  _globals['_REDUCEREQUEST']._serialized_start=264
+  _globals['_REDUCEREQUEST']._serialized_end=308
+  _globals['_REDUCERESPONSE']._serialized_start=310
+  _globals['_REDUCERESPONSE']._serialized_end=360
+  _globals['_MAPREDUCESERVICE']._serialized_start=363
+  _globals['_MAPREDUCESERVICE']._serialized_end=576
 # @@protoc_insertion_point(module_scope)
