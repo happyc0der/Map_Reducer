@@ -27,7 +27,8 @@ message MapResponse {
 }
 
 message StartReduceRequest{
-  int32 Flag=1;
+  repeated int32 partitions = 1;
+  int32 num_mappers = 2;
 }
 
 message StartReduceResponse{
@@ -35,12 +36,17 @@ message StartReduceResponse{
 }
 
 message ReduceRequest {
-  string key = 1;
-  repeated string values = 2; 
+  repeated int32 partitions = 1;
+}
+
+message centroid_values{
+  int32 key = 1;
+  repeated point values = 2;
 }
 
 message ReduceResponse {
-  string key = 1;
-  string newCentroid = 2;
+  repeated centroid_values centroid_values = 1;
 }
 
+//TO ACCESS KEY: rr.centroid_values.key
+//TO ACCESS VALUES: rr.centroid_values.values[index].x/y

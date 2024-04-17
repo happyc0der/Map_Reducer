@@ -69,7 +69,7 @@ if __name__ == "__main__":
 
     master_port = 4040
     mapper_ports = [master_port + i for i in range(1, Number_of_mappers + 1)]
-    reducer_ports = [2 * master_port + i for i in range(1, Number_of_reducers + 1)]
+    reducer_ports = [master_port - i for i in range(1, Number_of_reducers + 1)]
     
     
     # starting mappers 

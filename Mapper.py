@@ -4,8 +4,10 @@ import os
 import mapreduce_pb2_grpc
 import mapreduce_pb2
 from concurrent import futures
+import time 
 
 current_mapper_index = -1
+centroidIndex_to_point = {}
 
 
 class MapReduceService(mapreduce_pb2_grpc.MapReduceServiceServicer):
@@ -14,6 +16,16 @@ class MapReduceService(mapreduce_pb2_grpc.MapReduceServiceServicer):
         mapper_response = handle_map_request(request)
         response = mapreduce_pb2.MapResponse(status=mapper_response)
         return response
+
+    def StartReduce (self, request, context):
+        print(" 🔬 Recieved a StartReduce Request!")
+        handle_start_reduce_request(request)
+    
+
+def handle_start_reduce_request(request):
+    list_of_partitions = request.partitions
+    
+
 
 
 def calculate_min_distance(point, centroids):
@@ -31,6 +43,7 @@ def calculate_min_distance(point, centroids):
 
 def handle_map_request(request):
     num_reducers = request.num_reducers
+    centroids = request.centroids
     with open("Data/Input/points.txt", "r") as file:
         points = file.readlines()
 
@@ -58,8 +71,10 @@ def handle_map_request(request):
             f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "w+"
         ) as file:
             for point in centroidIndex_to_point[centroid_index]:
-                file.write(f"{point[0]},{point[1]}\n")
+                file.write(f"{centroids[centroid_index]},{point[0]},{point[1]}\n")
 
+    
+    
     return "OK"
 
 

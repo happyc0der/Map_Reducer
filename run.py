@@ -28,7 +28,7 @@ def terminate_processes(processes):
         except subprocess.TimeoutExpired:
             process.kill()  # Forcefully kill the process if it doesn't terminate
 
-def main(num_mappers, num_reducers, num_centroids, num_iterations):
+def main(num_mappers, num_reducers, num_centroids, num_iterations, sleep_time):
     
     mappers = run_mapper(num_mappers)
     reducers = run_reducer(num_reducers)
@@ -38,7 +38,7 @@ def main(num_mappers, num_reducers, num_centroids, num_iterations):
     # or some other coordination mechanism, depending on your use case.
 
 if __name__ == "__main__":
-    if len(sys.argv) != 5:
+    if len(sys.argv) != 6:
         print("Usage: run.py <num_mappers> <num_reducers> <num_centroids> <num_iterations>")
         sys.exit(1)
 
@@ -47,5 +47,10 @@ if __name__ == "__main__":
     num_reducers = int(sys.argv[2])
     num_centroids = int(sys.argv[3])
     num_iterations = int(sys.argv[4])
-    print(num_mappers, num_reducers, num_centroids, num_iterations)
-    main(num_mappers, num_reducers, num_centroids, num_iterations)
+    sleep_time = int(sys.argv[5])
+    print("Number of Mappers: ", num_mappers)
+    print("Number of Reducers: ", num_reducers)
+    print("Number of Centroids: ", num_centroids)
+    print("Number of Iterations: ", num_iterations)
+    print("Sleep Time: ", sleep_time)
+    main(num_mappers, num_reducers, num_centroids, num_iterations, sleep_time)

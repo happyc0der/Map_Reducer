@@ -32,10 +32,12 @@ class MapResponse(_message.Message):
     def __init__(self, status: _Optional[str] = ...) -> None: ...
 
 class StartReduceRequest(_message.Message):
-    __slots__ = ("Flag",)
-    FLAG_FIELD_NUMBER: _ClassVar[int]
-    Flag: int
-    def __init__(self, Flag: _Optional[int] = ...) -> None: ...
+    __slots__ = ("partitions", "num_mappers")
+    PARTITIONS_FIELD_NUMBER: _ClassVar[int]
+    NUM_MAPPERS_FIELD_NUMBER: _ClassVar[int]
+    partitions: _containers.RepeatedScalarFieldContainer[int]
+    num_mappers: int
+    def __init__(self, partitions: _Optional[_Iterable[int]] = ..., num_mappers: _Optional[int] = ...) -> None: ...
 
 class StartReduceResponse(_message.Message):
     __slots__ = ("ok",)
@@ -44,12 +46,10 @@ class StartReduceResponse(_message.Message):
     def __init__(self, ok: _Optional[int] = ...) -> None: ...
 
 class ReduceRequest(_message.Message):
-    __slots__ = ("key", "values")
-    KEY_FIELD_NUMBER: _ClassVar[int]
-    VALUES_FIELD_NUMBER: _ClassVar[int]
-    key: str
-    values: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, key: _Optional[str] = ..., values: _Optional[_Iterable[str]] = ...) -> None: ...
+    __slots__ = ("partitions",)
+    PARTITIONS_FIELD_NUMBER: _ClassVar[int]
+    partitions: _containers.RepeatedScalarFieldContainer[int]
+    def __init__(self, partitions: _Optional[_Iterable[int]] = ...) -> None: ...
 
 class ReduceResponse(_message.Message):
     __slots__ = ("key", "newCentroid")
