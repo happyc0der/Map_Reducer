@@ -20,8 +20,9 @@ def send_reduce_request_to_mapper(mapper_port_number, partitions_responsible_for
             lock.acquire()
             RESPONSES.append(response)
             lock.release()
-        except:
+        except Exception as e:
             print("❌ Error in Reduce Request") # according to sir this error will never happen
+            print(e)
     return 
 def handle_start_reduce_request(response):
     NUM_MAPPERS = response.num_mappers
@@ -72,7 +73,8 @@ def handle_start_reduce_request(response):
 class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
     def StartReduce(self, request, context):
         handle_start_reduce_request(request)
-        response = mapreduce_pb2.ReduceResponse(status="OK")
+        # compose a reply with ok as 1
+        response = mapreduce_pb2.StartReduceResponse(ok=1)
         return response
 
 if __name__ == "__main__":
