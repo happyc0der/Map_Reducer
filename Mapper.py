@@ -77,7 +77,6 @@ def handle_map_request(request):
     
     return "OK"
 
-
 if __name__ == "__main__":
     print("📒 Hello, I am am Mapper!")
     current_mapper_index = int(sys.argv[1])
