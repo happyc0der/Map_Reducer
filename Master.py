@@ -24,6 +24,16 @@ def compose_map_request(begin, end, centroids, mapper_port, number_of_reducers):
     stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
     response = stub.Map(request)
     print(f"📨 Recieved a Map Response from PORT {mapper_port}: status {response.status}")
+    
+def compose_reduce_request(reducer_port, number_of_mappers):
+    request = mapreduce_pb2.StartReduceRequest()
+    request.num_mappers = number_of_mappers
+    partition = 4040 - reducer_port 
+    
+    #TODO: Add the partitions in case of reducer failure
+    request.partitions.append(partition)
+    
+    return request
 
 
 def Input_Split(points, Number_of_mappers):
@@ -71,10 +81,20 @@ if __name__ == "__main__":
     mapper_ports = [master_port + i for i in range(1, Number_of_mappers + 1)]
     reducer_ports = [master_port - i for i in range(1, Number_of_reducers + 1)]
     
-    
+    mapper_threads = []
     # starting mappers 
     for port_index in range(len(mapper_ports)):
         print("💌 Sending Map request to PORT",mapper_ports[port_index])
-        threading.Thread(target=compose_map_request, args=(input_to_mappers[port_index][0], input_to_mappers[port_index][1], centroids, mapper_ports[port_index], Number_of_reducers)).start()
+        mapper_threads.append(threading.Thread(target=compose_map_request, args=(input_to_mappers[port_index][0], input_to_mappers[port_index][1], centroids, mapper_ports[port_index], Number_of_reducers)))
+        mapper_threads[-1].start()
+        
+    for mapper_thread in mapper_threads:
+        mapper_thread.join()
     
+    reducer_threads = []
+    
+    for port_index in range(len(reducer_ports)):
+        print("💌 Sending Reduce request to PORT",reducer_ports[port_index])
+        reducer_threads.append(threading.Thread(target=compose_reduce_request, args=(reducer_ports[port_index], Number_of_mappers)))
+        reducer_threads[-1].start()
 

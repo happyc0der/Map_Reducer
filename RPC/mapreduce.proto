@@ -45,8 +45,8 @@ message centroid_values{
 }
 
 message ReduceResponse {
-  repeated centroid_values centroid_values = 1;
+  repeated centroid_values dictionary = 1;
 }
 
 //TO ACCESS KEY: rr.centroid_values.key
-//TO ACCESS VALUES: rr.centroid_values.values[index].x/y
+//TO ACCESS VALUES: rr.dictionary.values[index].x/y

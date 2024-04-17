@@ -18,14 +18,27 @@ class MapReduceService(mapreduce_pb2_grpc.MapReduceServiceServicer):
         return response
 
     def StartReduce (self, request, context):
+        
         print(" 🔬 Recieved a StartReduce Request!")
         handle_start_reduce_request(request)
     
 
 def handle_start_reduce_request(request):
+    centroid_values = mapreduce_pb2.ReduceResponse.dictionary
     list_of_partitions = request.partitions
-    
-
+    for partition in list_of_partitions:
+        temp_centroid_values = mapreduce_pb2.centroid_values
+        current = partition
+        for centroidKey in centroidIndex_to_point.keys():
+            if centroidKey == current:
+                for point in centroidIndex_to_point[centroidKey]:
+                    temp_point = mapreduce_pb2.point(x=point[0], y=point[1])
+                    temp_centroid_values.points.append(temp_point)
+                break 
+        centroid_values.append(temp_centroid_values)
+    response = mapreduce_pb2.ReduceResponse(dictionary=centroid_values)
+                    
+        
 
 
 def calculate_min_distance(point, centroids):

@@ -41,8 +41,8 @@ def handle_start_reduce_request(response):
         thread.join()
     Collecting_Centroid_Data = {}
     for response in RESPONSES:
-        key = response.centroid_values.key 
-        values = response.centroid_values.values
+        key = response.dictionary.key 
+        values = response.dictionary.values
         if key not in Collecting_Centroid_Data:
             Collecting_Centroid_Data[key] = values
         else:
@@ -59,9 +59,6 @@ def handle_start_reduce_request(response):
             sum_y += values.y
             count += 1
         final_centroids.append([key, mapreduce_pb2.Point(x=sum_x/count, y=sum_y/count)])
-
-    
-
 
 
 class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):

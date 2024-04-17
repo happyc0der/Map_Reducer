@@ -51,10 +51,16 @@ class ReduceRequest(_message.Message):
     partitions: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, partitions: _Optional[_Iterable[int]] = ...) -> None: ...
 
-class ReduceResponse(_message.Message):
-    __slots__ = ("key", "newCentroid")
+class centroid_values(_message.Message):
+    __slots__ = ("key", "values")
     KEY_FIELD_NUMBER: _ClassVar[int]
-    NEWCENTROID_FIELD_NUMBER: _ClassVar[int]
-    key: str
-    newCentroid: str
-    def __init__(self, key: _Optional[str] = ..., newCentroid: _Optional[str] = ...) -> None: ...
+    VALUES_FIELD_NUMBER: _ClassVar[int]
+    key: int
+    values: _containers.RepeatedCompositeFieldContainer[point]
+    def __init__(self, key: _Optional[int] = ..., values: _Optional[_Iterable[_Union[point, _Mapping]]] = ...) -> None: ...
+
+class ReduceResponse(_message.Message):
+    __slots__ = ("dictionary",)
+    DICTIONARY_FIELD_NUMBER: _ClassVar[int]
+    dictionary: _containers.RepeatedCompositeFieldContainer[centroid_values]
+    def __init__(self, dictionary: _Optional[_Iterable[_Union[centroid_values, _Mapping]]] = ...) -> None: ...
