@@ -23,6 +23,7 @@ def compose_map_request(begin, end, centroids, mapper_port, number_of_reducers):
     channel = grpc.insecure_channel(f'localhost:{mapper_port}')
     stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
     response = stub.Map(request)
+    print(f"📨 Recieved a Map Response from PORT {mapper_port}: status {response.status}")
 
 
 def Input_Split(points, Number_of_mappers):

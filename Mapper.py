@@ -11,7 +11,8 @@ current_mapper_index = -1
 class MapReduceService(mapreduce_pb2_grpc.MapReduceServiceServicer):
     def Map(self, request, context):
         print(" ✉️ Recieved a Map Request!")
-        response = handle_map_request(request)
+        mapper_response = handle_map_request(request)
+        response = mapreduce_pb2.MapResponse(status=mapper_response)
         return response
 
 
@@ -54,7 +55,7 @@ def handle_map_request(request):
         if not os.path.exists(f"Data/Mappers/M{current_mapper_index}"):
             os.makedirs(f"Data/Mappers/M{current_mapper_index}")
         with open(
-            f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "a+"
+            f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "w+"
         ) as file:
             for point in centroidIndex_to_point[centroid_index]:
                 file.write(f"{point[0]},{point[1]}\n")
