@@ -98,6 +98,9 @@ def handle_map_request(request):
         point = [float(point[0]), float(point[1])]
         mapper_points.append(point)
     centroidIndex_to_point={}
+
+    for i in range(len(centroids)):
+        centroidIndex_to_point[i]=[]
     for point in mapper_points:
         min_distance_index = calculate_min_distance(point, centroids)
         if min_distance_index in centroidIndex_to_point.keys():
@@ -111,7 +114,7 @@ def handle_map_request(request):
         
     for i in range(num_reducers):
         clear_file(f"Data/Mappers/M{current_mapper_index}/partition_{i+1}.txt")
-
+    print(centroidIndex_to_point[2])
     for centroid_index in centroidIndex_to_point.keys():
         file_index = centroid_index % num_reducers + 1
         with open(f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "a") as file:
