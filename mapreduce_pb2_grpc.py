@@ -29,6 +29,11 @@ class MapReduceServiceStub(object):
                 request_serializer=mapreduce__pb2.StartReduceRequest.SerializeToString,
                 response_deserializer=mapreduce__pb2.StartReduceResponse.FromString,
                 )
+        self.returnCentroid = channel.unary_unary(
+                '/mapreduce.MapReduceService/returnCentroid',
+                request_serializer=mapreduce__pb2.returnReduce.SerializeToString,
+                response_deserializer=mapreduce__pb2.returnReduceResponse.FromString,
+                )
 
 
 class MapReduceServiceServicer(object):
@@ -52,6 +57,12 @@ class MapReduceServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def returnCentroid(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MapReduceServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -69,6 +80,11 @@ def add_MapReduceServiceServicer_to_server(servicer, server):
                     servicer.StartReduce,
                     request_deserializer=mapreduce__pb2.StartReduceRequest.FromString,
                     response_serializer=mapreduce__pb2.StartReduceResponse.SerializeToString,
+            ),
+            'returnCentroid': grpc.unary_unary_rpc_method_handler(
+                    servicer.returnCentroid,
+                    request_deserializer=mapreduce__pb2.returnReduce.FromString,
+                    response_serializer=mapreduce__pb2.returnReduceResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -128,5 +144,22 @@ class MapReduceService(object):
         return grpc.experimental.unary_unary(request, target, '/mapreduce.MapReduceService/StartReduce',
             mapreduce__pb2.StartReduceRequest.SerializeToString,
             mapreduce__pb2.StartReduceResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def returnCentroid(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/mapreduce.MapReduceService/returnCentroid',
+            mapreduce__pb2.returnReduce.SerializeToString,
+            mapreduce__pb2.returnReduceResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -7,8 +7,23 @@ import mapreduce_pb2_grpc
 import threading
 import mapreduce_pb2
 import random
-
 random.seed(42)
+COLLECTIING_REDUCE_ACK = {}
+lock = threading.Lock()
+def compose_return_reduce_request(reducer_idx, reducer_port):
+    try:
+        request = mapreduce_pb2.returnReduce(ok=1)
+    except Exception as e:
+        print("❌ Error in Return Reduce Request")
+        print(e)
+    channel = grpc.insecure_channel(f'localhost:{reducer_port}')
+    stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
+    response = stub.returnCentroid(request)
+    print(f"📨 Recieved a Return Reduce Response from PORT {reducer_port}: status {response.ok}")
+    lock.acquire()
+    COLLECTIING_REDUCE_ACK[reducer_idx] = response.ok
+    lock.release()
+    return request
 
 def compose_map_request(begin, end, centroids, mapper_port, number_of_reducers):
     request = mapreduce_pb2.MapRequest()
@@ -59,6 +74,28 @@ def Input_Split(points, Number_of_mappers):
         input_to_mappers[i] = [begin, end]
     return input_to_mappers
 
+def check_convergence(centroids, new_centroids):
+    epsilon = 0.0001
+    for a in centroids:
+        flag = 0
+        for b in new_centroids:
+            #NOTE: The crieria below can be changed
+            # print(a,b)
+            if (abs(a[0]-b[0])<epsilon and abs(a[1]-b[1])<epsilon):
+                flag = 1
+                break 
+        if flag == 0:
+            return False
+    for a in new_centroids:
+        flag = 0
+        for b in centroids:
+            if (abs(a[0]-b[0])<epsilon and abs(a[1]-b[1])<epsilon):
+                flag = 1
+                break 
+        if flag == 0:
+            return False
+    return True
+                
 
 if __name__ == "__main__":
     print("🧑🏻 Hello, I am a Master")
@@ -111,8 +148,34 @@ if __name__ == "__main__":
             reducer_thread.join()
 
 
-        #TODO: Read the final centroids from the reducer files and update the centroids list
+        reducer_threads = []
         new_centroids = []
+        for i in range(Number_of_reducers):
+            #TODO:For Fault tolerance, we need to check if the reducer is up or not in this case.
+            print(f"Reading from Reducer {i+1}")
+            reducer_threads.append(threading.Thread(target=compose_return_reduce_request,args=(i+1,reducer_ports[i])))
+            reducer_threads[-1].start()
 
+        for reducer_thread in reducer_threads:
+            reducer_thread.join()
+
+        for i in COLLECTIING_REDUCE_ACK.keys():
+
+            if COLLECTIING_REDUCE_ACK[i] == 1:
+                with open(f"Data/Reducers/R{i}.txt", "r") as file:
+                    for line in file:
+                        new_centroids.append([float(line.split(",")[0]), float(line.split(",")[1])])
+        # check if the new centroids and old centroids match or not
+        convergence = check_convergence(centroids, new_centroids)
+        if (convergence):
+            print("🏁 Converged")
+            break
+        else:
+            centroids = new_centroids
+            print("🔄 Iteration", k+1)
+
+
+
+            
 
 

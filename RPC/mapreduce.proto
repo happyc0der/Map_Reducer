@@ -8,7 +8,7 @@ service MapReduceService {
   rpc Map(MapRequest) returns (MapResponse);
   rpc Reduce(ReduceRequest) returns (ReduceResponse);
   rpc StartReduce(StartReduceRequest) returns (StartReduceResponse);
-  rpc returnCentroid(returnReduce) returns (returnReduceReponse);
+  rpc returnCentroid(returnReduce) returns (returnReduceResponse);
 }
 
 message MapRequest {

@@ -99,7 +99,7 @@ def handle_map_request(request):
         mapper_points.append(point)
 
     for point in mapper_points:
-        min_distance_index = calculate_min_distance(point, request.centroids)
+        min_distance_index = calculate_min_distance(point, centroids)
         if min_distance_index in centroidIndex_to_point.keys():
             centroidIndex_to_point[min_distance_index].append(point)
         else:

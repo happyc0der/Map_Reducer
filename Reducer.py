@@ -89,6 +89,18 @@ class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
         response = mapreduce_pb2.StartReduceResponse(ok=1)
         return response
     
+    def returnCentroid(self,request,context):
+        #NOTE: Can be used for fault tolerance handling if needed based on ok value
+        ack = -1
+        if request.ok==1:
+            print("🔴 Recieved a Return Centroid Request!")
+            ack = 1
+        else:
+            ack = 0
+        response = mapreduce_pb2.returnReduceResponse(ok=ack)
+        return response
+
+    
 
 if __name__ == "__main__":
     reducer_index = int(sys.argv[1]) + 1 # 1 - indexed

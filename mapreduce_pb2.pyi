@@ -5,14 +5,6 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
-class point(_message.Message):
-    __slots__ = ("x", "y")
-    X_FIELD_NUMBER: _ClassVar[int]
-    Y_FIELD_NUMBER: _ClassVar[int]
-    x: float
-    y: float
-    def __init__(self, x: _Optional[float] = ..., y: _Optional[float] = ...) -> None: ...
-
 class MapRequest(_message.Message):
     __slots__ = ("begin", "end", "centroids", "num_reducers")
     BEGIN_FIELD_NUMBER: _ClassVar[int]
@@ -50,6 +42,26 @@ class ReduceRequest(_message.Message):
     PARTITIONS_FIELD_NUMBER: _ClassVar[int]
     partitions: _containers.RepeatedScalarFieldContainer[int]
     def __init__(self, partitions: _Optional[_Iterable[int]] = ...) -> None: ...
+
+class returnReduce(_message.Message):
+    __slots__ = ("ok",)
+    OK_FIELD_NUMBER: _ClassVar[int]
+    ok: int
+    def __init__(self, ok: _Optional[int] = ...) -> None: ...
+
+class returnReduceResponse(_message.Message):
+    __slots__ = ("ok",)
+    OK_FIELD_NUMBER: _ClassVar[int]
+    ok: int
+    def __init__(self, ok: _Optional[int] = ...) -> None: ...
+
+class point(_message.Message):
+    __slots__ = ("x", "y")
+    X_FIELD_NUMBER: _ClassVar[int]
+    Y_FIELD_NUMBER: _ClassVar[int]
+    x: float
+    y: float
+    def __init__(self, x: _Optional[float] = ..., y: _Optional[float] = ...) -> None: ...
 
 class centroid_values(_message.Message):
     __slots__ = ("key", "values")
