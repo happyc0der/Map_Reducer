@@ -5,6 +5,7 @@ import mapreduce_pb2_grpc
 import mapreduce_pb2
 from concurrent import futures
 import time 
+import random
 
 current_mapper_index = -1
 centroidIndex_to_point = {}
@@ -39,6 +40,11 @@ class MapReduceService(mapreduce_pb2_grpc.MapReduceServiceServicer):
     def Map(self, request, context):
         print(" ✉️ Recieved a Map Request!")
         mapper_response = handle_map_request(request)
+        
+        p = 0.8
+        if random.random() > p and mapper_response == "OK":
+            print("❌ Mapper Failed!")
+            mapper_response = "FAILED"
         response = mapreduce_pb2.MapResponse(status=mapper_response)
         return response
 
@@ -52,20 +58,16 @@ def handle_reduce_request(request):
     centroid_values_dict_helper = {}
     list_of_partitions = request.partitions
     for partition in list_of_partitions:
-        # if partition == i then send the ith partition to this reducer
         with open(f"Data/Mappers/M{current_mapper_index}/partition_{partition}.txt", "r") as file:
             points = file.readlines()
         for point in points:
             point = point.strip().split(",")
             key = int(point[0])
             data_point = [float(point[1]), float(point[2])]
-            # the format in the file is printed like this file.write(f"{centroids[centroid_index]},{point[0]},{point[1]}\n")
-            # read the file according to above scheme
             if key in centroid_values_dict_helper.keys():
                 centroid_values_dict_helper[key].append(data_point)
             else:
                 centroid_values_dict_helper[key] = [data_point]
-    print(centroid_values_dict_helper)
     final_values_to_send = []
     for key in centroid_values_dict_helper.keys():
         temp_centroid_values = mapreduce_pb2.centroid_values()
@@ -74,28 +76,6 @@ def handle_reduce_request(request):
             temp_point = mapreduce_pb2.point(x=point[0], y=point[1])
             temp_centroid_values.values.append(temp_point)
         final_values_to_send.append(temp_centroid_values)
-    # list_of_partitions = request.partitions
-    # print(centroidIndex_to_point)
-    # for partition in list_of_partitions:
-    #     # Create a new centroid_values message for this partition
-    #     temp_centroid_values = mapreduce_pb2.centroid_values()
-
-    #     current = partition
-    #     for centroidKey in centroidIndex_to_point.keys():
-    #         if centroidKey == current:
-    #             for point in centroidIndex_to_point[centroidKey]:
-    #                 # Create a new point message and add it to the centroid_values message
-    #                 temp_point = mapreduce_pb2.point(x=point[0], y=point[1])
-    #                 temp_centroid_values.values.append(temp_point)
-    #             # Set the key for the centroid_values message
-    #             temp_centroid_values.key = current
-    #             break
-
-    #     # Add the filled centroid_values message to the list
-    #     centroid_values_dict_helper.append(temp_centroid_values)
-
-    # # Construct the ReduceResponse message with the list of centroid_values
-    print("SENDING",final_values_to_send)
     response = mapreduce_pb2.ReduceResponse(dictionary=final_values_to_send)
     return response
 
@@ -119,8 +99,6 @@ def handle_map_request(request):
             centroidIndex_to_point[min_distance_index].append(point)
         else:
             centroidIndex_to_point[min_distance_index] = [point]
-    # Setting up partition files
-    # Clean file before appending:
     
     if not os.path.exists(f"Data/Mappers/M{current_mapper_index}"):
         os.makedirs(f"Data/Mappers/M{current_mapper_index}")
@@ -128,12 +106,8 @@ def handle_map_request(request):
         clear_directory(f"Data/Mappers/M{current_mapper_index}")
     for centroid_index in centroidIndex_to_point.keys():
         file_index = centroid_index % num_reducers + 1
-        
-        # write the points to the file at the path f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt"
-
         with open(f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "a") as file:
             for point in centroidIndex_to_point[centroid_index]:
-                # the format is key x y 
                 file.write(f"{centroid_index},{point[0]},{point[1]}\n")
 
     return "OK"

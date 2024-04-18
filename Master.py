@@ -20,6 +20,9 @@ def compose_return_reduce_request(reducer_idx, reducer_port):
     stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
     response = stub.returnCentroid(request)
     print(f"📨 Recieved a Return Reduce Response from PORT {reducer_port}: status {response.ok}")
+    if (response.ok == 0):
+        print("❌ Error in Return Reduce Response retrying...")
+        compose_return_reduce_request(reducer_idx, reducer_port)
     lock.acquire()
     COLLECTIING_REDUCE_ACK[reducer_idx] = response.ok
     lock.release()
@@ -38,6 +41,9 @@ def compose_map_request(begin, end, centroids, mapper_port, number_of_reducers):
     channel = grpc.insecure_channel(f'localhost:{mapper_port}')
     stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
     response = stub.Map(request)
+    if (response.status == "FAILED"):
+        print("❌ Error in Map Request retrying...")
+        compose_map_request(begin, end, centroids, mapper_port, number_of_reducers)
     print(f"📨 Recieved a Map Response from PORT {mapper_port}: status {response.status}")
     
 def compose_reduce_request(reducer_port, number_of_mappers):
@@ -103,6 +109,8 @@ if __name__ == "__main__":
     Number_of_reducers = int(sys.argv[2])
     Number_of_centroids = int(sys.argv[3])
     Number_of_iterations = int(sys.argv[4])
+    if (Number_of_centroids < Number_of_reducers):
+        Number_of_reducers = Number_of_centroids
     starting_points = []
     with open("Data/input/points.txt", "r") as file:
         for line in file:
@@ -151,7 +159,6 @@ if __name__ == "__main__":
         reducer_threads = []
         new_centroids = []
         for i in range(Number_of_reducers):
-            #TODO:For Fault tolerance, we need to check if the reducer is up or not in this case.
             print(f"Reading from Reducer {i+1}")
             reducer_threads.append(threading.Thread(target=compose_return_reduce_request,args=(i+1,reducer_ports[i])))
             reducer_threads[-1].start()
@@ -159,8 +166,8 @@ if __name__ == "__main__":
         for reducer_thread in reducer_threads:
             reducer_thread.join()
 
+        # post processing
         for i in COLLECTIING_REDUCE_ACK.keys():
-
             if COLLECTIING_REDUCE_ACK[i] == 1:
                 with open(f"Data/Reducers/R{i}.txt", "r") as file:
                     for line in file:

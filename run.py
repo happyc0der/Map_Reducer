@@ -1,6 +1,6 @@
 import subprocess
 import sys
-
+import os 
 virtualenv_python = r'python.exe'
 master_script_path = r'./Master.py'
 mapper_script_path = r'./Mapper.py'
@@ -20,6 +20,20 @@ def run_reducer(num_reducers):
 def run_master(num_mappers, num_reducers, num_centroids, num_iterations):
     return run_process(master_script_path, num_mappers, num_reducers, num_centroids, num_iterations)
 
+def clear_directory(directory):
+    # List all files and subdirectories in the given directory
+    for file_name in os.listdir(directory):
+        file_path = os.path.join(directory, file_name)
+        # Check if the path is a file
+        if os.path.isfile(file_path):
+            # Remove the file
+            os.remove(file_path)
+        # If it's a directory, recursively clear it
+        elif os.path.isdir(file_path):
+            clear_directory(file_path)
+            # After clearing the subdirectory, remove it
+            os.rmdir(file_path)
+
 def terminate_processes(processes):
     for process in processes:
         process.terminate()  # Politely ask the process to terminate
@@ -34,12 +48,21 @@ def main(num_mappers, num_reducers, num_centroids, num_iterations, sleep_time):
     reducers = run_reducer(num_reducers)
     master = run_master(num_mappers, num_reducers, num_centroids, num_iterations)
 
+    # clear the directories
+    clear_directory('Data/Mappers')
+    clear_directory('Data/Reducers')
+    if (os.path.exists('Data/initial_centroids.txt')):
+        os.remove('Data/initial_centroids.txt')
+    if (os.path.exists('Data/centroids.txt')):
+        os.remove('Data/centroids.txt')
+    
+    
     # You might want to add some logic to wait for the processes to finish
     # or some other coordination mechanism, depending on your use case.
 
 if __name__ == "__main__":
     if len(sys.argv) != 6:
-        print("Usage: run.py <num_mappers> <num_reducers> <num_centroids> <num_iterations>")
+        print("Usage: run.py <num_mappers> <num_reducers> <num_centroids> <num_iterations> <sleep_time>")
         sys.exit(1)
 
 

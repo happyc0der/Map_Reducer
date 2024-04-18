@@ -5,6 +5,7 @@ import sys
 from concurrent import futures
 import threading 
 import os
+import random
 REDUCER_ID = -1
 RESPONSES = []
 NUM_MAPPERS = -1
@@ -59,13 +60,11 @@ def handle_start_reduce_request(response):
 
     final_centroids = []
     # NOT SURE THIS WORKS OR NOT
-    print(type(Collecting_Centroid_Data))
     for key in Collecting_Centroid_Data.keys():
         sum_x = 0
         sum_y = 0
         count = 0
         for values in Collecting_Centroid_Data[key]:
-            print(values)
             sum_x += values[0]
             sum_y += values[1]
             count += 1
@@ -87,7 +86,9 @@ class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
         handle_start_reduce_request(request)
         # compose a reply with ok as 1
         print("🟢 Sent a Start Reduce Response!")
+    
         response = mapreduce_pb2.StartReduceResponse(ok=1)
+
         return response
     
     def returnCentroid(self,request,context):
@@ -98,6 +99,12 @@ class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
             ack = 1
         else:
             ack = 0
+        # with probability 0.8 set ok to 0 
+        # with probability 0.2 set ok to 1
+        p = 0.8
+        if ack == 1 and random.random()  > p:
+            ack = 0
+        
         response = mapreduce_pb2.returnReduceResponse(ok=ack)
         return response
 
