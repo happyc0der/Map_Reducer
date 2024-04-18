@@ -164,15 +164,23 @@ if __name__ == "__main__":
             if COLLECTIING_REDUCE_ACK[i] == 1:
                 with open(f"Data/Reducers/R{i}.txt", "r") as file:
                     for line in file:
-                        new_centroids.append([float(line.split(",")[0]), float(line.split(",")[1])])
+                        new_centroids.append([float(line.split(" ")[0]), float(line.split(" ")[1])])
         # check if the new centroids and old centroids match or not
         convergence = check_convergence(centroids, new_centroids)
         if (convergence):
-            print("🏁 Converged")
+            print("🏁 Converged in",k+1)
+            print("old centroid",centroids)
+            print("new centroid",new_centroids)
             break
         else:
             centroids = new_centroids
             print("🔄 Iteration", k+1)
+    
+    with open("Data/centroids.txt","w") as file:
+        for point in centroids:
+            file.write(f"{point[0]},{point[1]}\n")
+
+
 
 
 

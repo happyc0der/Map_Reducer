@@ -4,6 +4,7 @@ import mapreduce_pb2
 import sys 
 from concurrent import futures
 import threading 
+import os
 REDUCER_ID = -1
 RESPONSES = []
 NUM_MAPPERS = -1
@@ -56,23 +57,23 @@ def handle_start_reduce_request(response):
             else:
                 Collecting_Centroid_Data[key].extend(values_as_tuples)
 
-    print(Collecting_Centroid_Data)
     final_centroids = []
     # NOT SURE THIS WORKS OR NOT
-    for key in Collecting_Centroid_Data:
+    print(type(Collecting_Centroid_Data))
+    for key in Collecting_Centroid_Data.keys():
         sum_x = 0
         sum_y = 0
         count = 0
         for values in Collecting_Centroid_Data[key]:
-            sum_x += values.x
-            sum_y += values.y
+            print(values)
+            sum_x += values[0]
+            sum_y += values[1]
             count += 1
         final_centroids.append([sum_x/count, sum_y/count]) 
     # print the final list of centroids line wise into the file at ./Data/Reducers/R{REDUCER_ID}.txt
-    
     with open(f"./Data/Reducers/R{REDUCER_ID}.txt", "w") as f:
         for centroid in final_centroids:
-            f.write(f"{centroid[0]} {centroid[1]}\n")
+            f.write(f"{centroid[0]} {centroid[1]} \n")
     print(f"Reducer {REDUCER_ID} has finished reducing and written the final centroids to file.")
     return 
     

@@ -21,6 +21,20 @@ def calculate_min_distance(point, centroids):
             min_distance = distance
     return min_index
 
+def clear_directory(directory):
+    # List all files and subdirectories in the given directory
+    for file_name in os.listdir(directory):
+        file_path = os.path.join(directory, file_name)
+        # Check if the path is a file
+        if os.path.isfile(file_path):
+            # Remove the file
+            os.remove(file_path)
+        # If it's a directory, recursively clear it
+        elif os.path.isdir(file_path):
+            clear_directory(file_path)
+            # After clearing the subdirectory, remove it
+            os.rmdir(file_path)
+
 class MapReduceService(mapreduce_pb2_grpc.MapReduceServiceServicer):
     def Map(self, request, context):
         print(" ✉️ Recieved a Map Request!")
@@ -81,6 +95,7 @@ def handle_reduce_request(request):
     #     centroid_values_dict_helper.append(temp_centroid_values)
 
     # # Construct the ReduceResponse message with the list of centroid_values
+    print("SENDING",final_values_to_send)
     response = mapreduce_pb2.ReduceResponse(dictionary=final_values_to_send)
     return response
 
@@ -105,14 +120,18 @@ def handle_map_request(request):
         else:
             centroidIndex_to_point[min_distance_index] = [point]
     # Setting up partition files
+    # Clean file before appending:
+    
+    if not os.path.exists(f"Data/Mappers/M{current_mapper_index}"):
+        os.makedirs(f"Data/Mappers/M{current_mapper_index}")
+    else:
+        clear_directory(f"Data/Mappers/M{current_mapper_index}")
     for centroid_index in centroidIndex_to_point.keys():
         file_index = centroid_index % num_reducers + 1
-        if not os.path.exists(f"Data/Mappers/M{current_mapper_index}"):
-            os.makedirs(f"Data/Mappers/M{current_mapper_index}")
+        
         # write the points to the file at the path f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt"
-        with open(
-            f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "w"
-        ) as file:
+
+        with open(f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "a") as file:
             for point in centroidIndex_to_point[centroid_index]:
                 # the format is key x y 
                 file.write(f"{centroid_index},{point[0]},{point[1]}\n")
