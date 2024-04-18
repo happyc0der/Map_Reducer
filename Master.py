@@ -7,7 +7,7 @@ import mapreduce_pb2_grpc
 import threading
 import mapreduce_pb2
 import random
-random.seed(42)
+random.seed(37)
 COLLECTIING_REDUCE_ACK = {}
 lock = threading.Lock()
 def compose_return_reduce_request(reducer_idx, reducer_port):
@@ -80,15 +80,21 @@ def Input_Split(points, Number_of_mappers):
     return input_to_mappers
 
 def check_convergence(centroids, new_centroids):
-    epsilon = 0.0001
-    flag=True
-    for i in range(len(centroid)):
+    epsilon = 0.00000001
+    flag=0
+    for i in range(len(centroids)):
         a=centroids[i]
-        b=new_centroids[i]
-        if (abs(a[0]-b[0])<epsilon and abs(a[1]-b[1])<epsilon):
-            continue
-        else:
-            return False
+        for j in range(len(centroids)):
+            b=new_centroids[j]
+            if (abs(a[0]-b[0])<epsilon and abs(a[1]-b[1])<epsilon):
+                flag+=1
+                break
+    if flag==len(centroids):
+        return True
+    else:
+        return False
+            
+        
     return flag
 
 if __name__ == "__main__":
@@ -154,7 +160,7 @@ if __name__ == "__main__":
             reducer_thread.join()
 
         # post processing
-        for i in sorted(COLLECTIING_REDUCE_ACK.keys()):
+        for i in COLLECTIING_REDUCE_ACK.keys():
             if COLLECTIING_REDUCE_ACK[i] == 1:
                 with open(f"Data/Reducers/R{i}.txt", "r") as file:
                     for line in file:
@@ -169,7 +175,7 @@ if __name__ == "__main__":
         else:
             print("old centroid",centroids)
             print("new centroid",new_centroids)
-            centroids = new_centroids
+            centroids = new_centroids.copy()
             print("🔄 Iteration", k+1)
     
     with open("Data/centroids.txt","w") as file:

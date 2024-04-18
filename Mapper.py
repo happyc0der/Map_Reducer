@@ -13,7 +13,7 @@ def calculate_min_distance(point, centroids):
     for centroid_index in range(len(centroids)):
         centroid_point_x = centroids[centroid_index].x
         centroid_point_y = centroids[centroid_index].y
-        distance = ((point[0] - centroid_point_x) ** 2 + (point[1] - centroid_point_y) ** 2) ** 0.5
+        distance = ((point[0] - centroid_point_x) ** 2 + (point[1] - centroid_point_y) ** 2) 
         if distance < min_distance:
             min_index = centroid_index
             min_distance = distance
@@ -114,9 +114,9 @@ def handle_map_request(request):
         
     for i in range(num_reducers):
         clear_file(f"Data/Mappers/M{current_mapper_index}/partition_{i+1}.txt")
-    print(centroidIndex_to_point[2])
+    print(centroidIndex_to_point)
     for centroid_index in centroidIndex_to_point.keys():
-        file_index = centroid_index % num_reducers + 1
+        file_index = (centroid_index % num_reducers) + 1
         with open(f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "a") as file:
             for point in centroidIndex_to_point[centroid_index]:
                 file.write(f"{centroid_index},{point[0]},{point[1]}\n")

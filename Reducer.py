@@ -28,6 +28,7 @@ def send_reduce_request_to_mapper(mapper_port_number, partitions_responsible_for
     return 
 
 def handle_start_reduce_request(response):
+    global RESPONSES
     NUM_MAPPERS = response.num_mappers
     responsible_for = response.partitions 
 
@@ -38,8 +39,8 @@ def handle_start_reduce_request(response):
     threads = []
     for i in range(NUM_MAPPERS):
         thread = threading.Thread(target=send_reduce_request_to_mapper, args=(mapper_port_number[i],responsible_for))
-        thread.start()
         threads.append(thread)
+        thread.start()
     
     for thread in threads:
         thread.join()
@@ -57,7 +58,7 @@ def handle_start_reduce_request(response):
                 Collecting_Centroid_Data[key] = values_as_tuples
             else:
                 Collecting_Centroid_Data[key].extend(values_as_tuples)
-
+    RESPONSES=[]
     final_centroids = []
     # NOT SURE THIS WORKS OR NOT
     for key in Collecting_Centroid_Data.keys():
