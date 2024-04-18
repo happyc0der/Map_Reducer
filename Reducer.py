@@ -6,6 +6,7 @@ from concurrent import futures
 import threading 
 import os
 import random
+import time
 REDUCER_ID = -1
 RESPONSES = []
 NUM_MAPPERS = -1
@@ -28,10 +29,12 @@ def send_reduce_request_to_mapper(mapper_port_number, partitions_responsible_for
     return 
 
 def handle_start_reduce_request(response):
+    print("SLEEPING... Please Terminate")
+    time.sleep(int(sys.argv[2]))
     global RESPONSES
     NUM_MAPPERS = response.num_mappers
     responsible_for = response.partitions 
-
+    append=response.append
     mapper_port_number = []
     for i in range(NUM_MAPPERS):
         mapper_port_number.append(4040 + (i+1))
@@ -39,6 +42,7 @@ def handle_start_reduce_request(response):
     threads = []
     for i in range(NUM_MAPPERS):
         thread = threading.Thread(target=send_reduce_request_to_mapper, args=(mapper_port_number[i],responsible_for))
+        thread.daemon=True
         threads.append(thread)
         thread.start()
     
@@ -71,7 +75,10 @@ def handle_start_reduce_request(response):
             count += 1
         final_centroids.append([sum_x/count, sum_y/count]) 
     # print the final list of centroids line wise into the file at ./Data/Reducers/R{REDUCER_ID}.txt
-    with open(f"./Data/Reducers/R{REDUCER_ID}.txt", "w") as f:
+    write_flag='w'
+    if append:
+        write_flag='a'
+    with open(f"./Data/Reducers/R{REDUCER_ID}.txt", write_flag) as f:
         for centroid in final_centroids:
             f.write(f"{centroid[0]} {centroid[1]} \n")
     print(f"Reducer {REDUCER_ID} has finished reducing and written the final centroids to file.")
@@ -102,7 +109,7 @@ class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
             ack = 0
         # with probability 0.8 set ok to 0 
         # with probability 0.2 set ok to 1
-        p = 0.5
+        p = 0.8
         if ack == 1 and random.random()  > p:
             ack = 0
         

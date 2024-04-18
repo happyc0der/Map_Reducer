@@ -46,7 +46,7 @@ class MapReduceService(mapreduce_pb2_grpc.MapReduceServiceServicer):
         print(" ✉️ Recieved a Map Request!")
         mapper_response = handle_map_request(request)
         
-        p = 0.5
+        p = 0.8
         if random.random() > p and mapper_response == "OK":
             print("❌ Mapper Failed!")
             mapper_response = "FAILED"
@@ -86,6 +86,8 @@ def handle_reduce_request(request):
 
                     
 def handle_map_request(request):
+    print("SLEEPING... Please Terminate")
+    time.sleep(int(sys.argv[2]))
     num_reducers = request.num_reducers
     centroids = request.centroids
     append=request.append
@@ -108,12 +110,11 @@ def handle_map_request(request):
             centroidIndex_to_point[min_distance_index].append(point)
         else:
             centroidIndex_to_point[min_distance_index] = [point]
-    if not os.path.exists(f"Data/Mappers/M{current_mapper_index}"):
-        os.makedirs(f"Data/Mappers/M{current_mapper_index}")
-    else:
-        clear_directory(f"Data/Mappers/M{current_mapper_index}")
-
-    if append==0:   
+    if append==0:
+        if not os.path.exists(f"Data/Mappers/M{current_mapper_index}"):
+            os.makedirs(f"Data/Mappers/M{current_mapper_index}")
+        else:
+            clear_directory(f"Data/Mappers/M{current_mapper_index}")
         for i in range(num_reducers):
             clear_file(f"Data/Mappers/M{current_mapper_index}/partition_{i+1}.txt")
 

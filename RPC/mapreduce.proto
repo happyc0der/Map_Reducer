@@ -16,7 +16,7 @@ message MapRequest {
   int32 end = 2;
   repeated point centroids = 3;
   int32 num_reducers = 4;
-  bool append =5;
+  bool append = 5;
 }
 
 message MapResponse {
@@ -26,6 +26,7 @@ message MapResponse {
 message StartReduceRequest{
   repeated int32 partitions = 1;
   int32 num_mappers = 2;
+  bool append = 3;
 }
 
 message StartReduceResponse{

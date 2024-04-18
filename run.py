@@ -11,11 +11,11 @@ def run_process(script_path, *args):
     print(cmd)
     return subprocess.Popen(cmd, shell=True)
 
-def run_mapper(num_mappers):
-    return [run_process(mapper_script_path, i) for i in range(num_mappers)]
+def run_mapper(num_mappers,sleep_time):
+    return [run_process(mapper_script_path, i,sleep_time) for i in range(num_mappers)]
 
-def run_reducer(num_reducers):
-    return [run_process(reducer_script_path, i) for i in range(num_reducers)]
+def run_reducer(num_reducers,sleep_time):
+    return [run_process(reducer_script_path, i,sleep_time) for i in range(num_reducers)]
 
 def run_master(num_mappers, num_reducers, num_centroids, num_iterations):
     return run_process(master_script_path, num_mappers, num_reducers, num_centroids, num_iterations)
@@ -44,8 +44,8 @@ def terminate_processes(processes):
 
 def main(num_mappers, num_reducers, num_centroids, num_iterations, sleep_time):
     
-    mappers = run_mapper(num_mappers)
-    reducers = run_reducer(num_reducers)
+    mappers = run_mapper(num_mappers,sleep_time)
+    reducers = run_reducer(num_reducers,sleep_time)
     master = run_master(num_mappers, num_reducers, num_centroids, num_iterations)
 
     # clear the directories

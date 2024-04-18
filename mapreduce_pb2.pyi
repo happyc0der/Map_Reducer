@@ -26,12 +26,14 @@ class MapResponse(_message.Message):
     def __init__(self, status: _Optional[str] = ...) -> None: ...
 
 class StartReduceRequest(_message.Message):
-    __slots__ = ("partitions", "num_mappers")
+    __slots__ = ("partitions", "num_mappers", "append")
     PARTITIONS_FIELD_NUMBER: _ClassVar[int]
     NUM_MAPPERS_FIELD_NUMBER: _ClassVar[int]
+    APPEND_FIELD_NUMBER: _ClassVar[int]
     partitions: _containers.RepeatedScalarFieldContainer[int]
     num_mappers: int
-    def __init__(self, partitions: _Optional[_Iterable[int]] = ..., num_mappers: _Optional[int] = ...) -> None: ...
+    append: bool
+    def __init__(self, partitions: _Optional[_Iterable[int]] = ..., num_mappers: _Optional[int] = ..., append: bool = ...) -> None: ...
 
 class StartReduceResponse(_message.Message):
     __slots__ = ("ok",)
