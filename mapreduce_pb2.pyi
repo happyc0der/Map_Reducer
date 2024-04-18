@@ -6,16 +6,18 @@ from typing import ClassVar as _ClassVar, Iterable as _Iterable, Mapping as _Map
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class MapRequest(_message.Message):
-    __slots__ = ("begin", "end", "centroids", "num_reducers")
+    __slots__ = ("begin", "end", "centroids", "num_reducers", "append")
     BEGIN_FIELD_NUMBER: _ClassVar[int]
     END_FIELD_NUMBER: _ClassVar[int]
     CENTROIDS_FIELD_NUMBER: _ClassVar[int]
     NUM_REDUCERS_FIELD_NUMBER: _ClassVar[int]
+    APPEND_FIELD_NUMBER: _ClassVar[int]
     begin: int
     end: int
     centroids: _containers.RepeatedCompositeFieldContainer[point]
     num_reducers: int
-    def __init__(self, begin: _Optional[int] = ..., end: _Optional[int] = ..., centroids: _Optional[_Iterable[_Union[point, _Mapping]]] = ..., num_reducers: _Optional[int] = ...) -> None: ...
+    append: bool
+    def __init__(self, begin: _Optional[int] = ..., end: _Optional[int] = ..., centroids: _Optional[_Iterable[_Union[point, _Mapping]]] = ..., num_reducers: _Optional[int] = ..., append: bool = ...) -> None: ...
 
 class MapResponse(_message.Message):
     __slots__ = ("status",)

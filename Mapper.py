@@ -88,6 +88,7 @@ def handle_reduce_request(request):
 def handle_map_request(request):
     num_reducers = request.num_reducers
     centroids = request.centroids
+    append=request.append
     with open("Data/Input/points.txt", "r") as file:
         points = file.readlines()
 
@@ -111,10 +112,11 @@ def handle_map_request(request):
         os.makedirs(f"Data/Mappers/M{current_mapper_index}")
     else:
         clear_directory(f"Data/Mappers/M{current_mapper_index}")
-        
-    for i in range(num_reducers):
-        clear_file(f"Data/Mappers/M{current_mapper_index}/partition_{i+1}.txt")
-    print(centroidIndex_to_point)
+
+    if append==0:   
+        for i in range(num_reducers):
+            clear_file(f"Data/Mappers/M{current_mapper_index}/partition_{i+1}.txt")
+
     for centroid_index in centroidIndex_to_point.keys():
         file_index = (centroid_index % num_reducers) + 1
         with open(f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "a") as file:

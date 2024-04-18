@@ -9,6 +9,7 @@ import mapreduce_pb2
 import random
 random.seed(37)
 COLLECTIING_REDUCE_ACK = {}
+MAP_FAILURE={}
 lock = threading.Lock()
 def compose_return_reduce_request(reducer_idx, reducer_port):
     try:
@@ -28,22 +29,28 @@ def compose_return_reduce_request(reducer_idx, reducer_port):
     lock.release()
     return request
 
-def compose_map_request(begin, end, centroids, mapper_port, number_of_reducers):
+def compose_map_request(begin, end, centroids, mapper_port,number_of_mappers,number_of_reducers,append=0):
     request = mapreduce_pb2.MapRequest()
     request.begin = begin
     request.end = end
+    request.append=append
     for centroid in centroids:
         point = mapreduce_pb2.point(x=centroid[0], y=centroid[1])
         request.centroids.append(point)
 
     request.num_reducers = number_of_reducers
-    
-    channel = grpc.insecure_channel(f'localhost:{mapper_port}')
-    stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
-    response = stub.Map(request)
-    if (response.status == "FAILED"):
-        print("❌ Error in Map Request retrying...")
-        return compose_map_request(begin, end, centroids, mapper_port, number_of_reducers)
+    try:
+        channel = grpc.insecure_channel(f'localhost:{mapper_port}')
+        stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
+        response = stub.Map(request)
+        if (response.status == "FAILED"):
+            print("❌ Error in Map Request retrying...")
+            return compose_map_request(begin, end, centroids, mapper_port, number_of_reducers)
+    except:
+        next_port=4041+((mapper_port-4041)+1)%number_of_mappers
+        print("FAILED TO SEND MESSAGE TO MAPPER. Redirecting to next mapper with port:",next_port)
+        return compose_map_request(begin,end,next_port,number_of_mappers,number_of_reducers,append=1)
+
     print(f"📨 Recieved a Map Response from PORT {mapper_port}: status {response.status}")
     
 def compose_reduce_request(reducer_port, number_of_mappers):
@@ -133,7 +140,7 @@ if __name__ == "__main__":
         # starting mappers 
         for port_index in range(len(mapper_ports)):
             print("💌 Sending Map request to PORT",mapper_ports[port_index])
-            mapper_threads.append(threading.Thread(target=compose_map_request, args=(input_to_mappers[port_index][0], input_to_mappers[port_index][1], centroids, mapper_ports[port_index], Number_of_reducers)))
+            mapper_threads.append(threading.Thread(target=compose_map_request, args=(input_to_mappers[port_index][0], input_to_mappers[port_index][1], centroids, mapper_ports[port_index],Number_of_mappers, Number_of_reducers)))
             mapper_threads[-1].start()
             
         for mapper_thread in mapper_threads:
