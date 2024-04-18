@@ -11,6 +11,13 @@ random.seed(37)
 COLLECTIING_REDUCE_ACK = {}
 MAP_FAILURE={}
 lock = threading.Lock()
+DUMP_PATH = "Data/master_dump.txt"
+
+def dump(message):
+    global DUMP_PATH
+    with open(DUMP_PATH, "a") as file:
+        file.write(message + "\n")
+
 def compose_return_reduce_request(reducer_idx, reducer_port):
     try:
         request = mapreduce_pb2.returnReduce(ok=1)
@@ -22,7 +29,7 @@ def compose_return_reduce_request(reducer_idx, reducer_port):
             print("❌ Error in Return Reduce Response retrying...")
             return compose_return_reduce_request(reducer_idx, reducer_port)
         lock.acquire()
-        COLLECTIING_REDUCE_ACK[reducer_idx] = response.ok
+        COLLECTIING_REDUCE_ACK[reducer_idx] = response
         lock.release()
     except Exception as e:
         print("❌ Error in Return Reduce Request")
@@ -109,13 +116,14 @@ def check_convergence(centroids, new_centroids):
     
 
 if __name__ == "__main__":
-    print("🧑🏻 Hello, I am a Master")
     Number_of_mappers = int(sys.argv[1])
     Number_of_reducers = int(sys.argv[2])
     Number_of_centroids = int(sys.argv[3])
     Number_of_iterations = int(sys.argv[4])
     if (Number_of_centroids < Number_of_reducers):
         Number_of_reducers = Number_of_centroids
+    print("🧑🏻 Hello, I am a Master")
+    dump("Hello, I am a Master")
     starting_points = []
     with open("Data/input/points.txt", "r") as file:
         for line in file:
@@ -172,10 +180,10 @@ if __name__ == "__main__":
 
         # post processing
         for i in COLLECTIING_REDUCE_ACK.keys():
-            if COLLECTIING_REDUCE_ACK[i] == 1:
-                with open(f"Data/Reducers/R{i}.txt", "r") as file:
-                    for line in file:
-                        new_centroids.append([float(line.split(" ")[0]), float(line.split(" ")[1])])
+            res = COLLECTIING_REDUCE_ACK[i]
+            if (res.ok == 1):
+                for centroid in res.centroids:
+                    new_centroids.append([centroid.x, centroid.y])
         # check if the new centroids and old centroids match or not
         convergence= check_convergence(centroids, new_centroids)
         if (convergence):

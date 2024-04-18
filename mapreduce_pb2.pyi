@@ -54,10 +54,12 @@ class returnReduce(_message.Message):
     def __init__(self, ok: _Optional[int] = ...) -> None: ...
 
 class returnReduceResponse(_message.Message):
-    __slots__ = ("ok",)
+    __slots__ = ("ok", "centroids")
     OK_FIELD_NUMBER: _ClassVar[int]
+    CENTROIDS_FIELD_NUMBER: _ClassVar[int]
     ok: int
-    def __init__(self, ok: _Optional[int] = ...) -> None: ...
+    centroids: _containers.RepeatedCompositeFieldContainer[point]
+    def __init__(self, ok: _Optional[int] = ..., centroids: _Optional[_Iterable[_Union[point, _Mapping]]] = ...) -> None: ...
 
 class point(_message.Message):
     __slots__ = ("x", "y")

@@ -43,6 +43,7 @@ message returnReduce{
 
 message returnReduceResponse{
   int32 ok = 1;
+  repeated point centroids = 2;
 }
 
 message point{
@@ -59,5 +60,3 @@ message ReduceResponse {
   repeated centroid_values dictionary = 1;
 }
 
-//TO ACCESS KEY: rr.centroid_values.key
-//TO ACCESS VALUES: rr.dictionary.values[index].x/y

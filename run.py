@@ -49,12 +49,7 @@ def main(num_mappers, num_reducers, num_centroids, num_iterations, sleep_time):
     master = run_master(num_mappers, num_reducers, num_centroids, num_iterations)
 
     # clear the directories
-    clear_directory('Data/Mappers')
-    clear_directory('Data/Reducers')
-    if (os.path.exists('Data/initial_centroids.txt')):
-        os.remove('Data/initial_centroids.txt')
-    if (os.path.exists('Data/centroids.txt')):
-        os.remove('Data/centroids.txt')
+    
     
     
     # You might want to add some logic to wait for the processes to finish
@@ -65,7 +60,13 @@ if __name__ == "__main__":
         print("Usage: run.py <num_mappers> <num_reducers> <num_centroids> <num_iterations> <sleep_time>")
         sys.exit(1)
 
-
+    clear_directory('Data/Mappers')
+    clear_directory('Data/Reducers')
+    clear_directory('Data/Dump')
+    if (os.path.exists('Data/initial_centroids.txt')):
+        os.remove('Data/initial_centroids.txt')
+    if (os.path.exists('Data/centroids.txt')):
+        os.remove('Data/centroids.txt')
     num_mappers = int(sys.argv[1])
     num_reducers = int(sys.argv[2])
     num_centroids = int(sys.argv[3])

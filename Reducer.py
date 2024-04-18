@@ -100,7 +100,11 @@ class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
         return response
     
     def returnCentroid(self,request,context):
-        #NOTE: Can be used for fault tolerance handling if needed based on ok value
+        my_centroids = []
+        with open(f"./Data/Reducers/R{REDUCER_ID}.txt", "r") as file:
+            for line in file:
+                my_centroids.append([float(line.split(" ")[0]), float(line.split(" ")[1])])
+        send_centroids = [mapreduce_pb2.point(x=centroid[0],y=centroid[1]) for centroid in my_centroids]
         ack = -1
         if request.ok==1:
             print("🔴 Recieved a Return Centroid Request!")
@@ -113,7 +117,7 @@ class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
         if ack == 1 and random.random()  > p:
             ack = 0
         
-        response = mapreduce_pb2.returnReduceResponse(ok=ack)
+        response = mapreduce_pb2.returnReduceResponse(ok=ack,centroids= send_centroids)
         return response
 
     
