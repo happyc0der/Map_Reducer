@@ -7,9 +7,6 @@ from concurrent import futures
 import time 
 import random
 
-current_mapper_index = -1
-centroidIndex_to_point = {}
-
 def calculate_min_distance(point, centroids):
     min_distance = float("inf")
     min_index = -1
@@ -36,12 +33,20 @@ def clear_directory(directory):
             # After clearing the subdirectory, remove it
             os.rmdir(file_path)
 
+def clear_file(file_path):
+    if os.path.exists(file_path):
+        with open(file_path, 'w'):  # 'w' mode truncates the file
+            pass  # This line does nothing, but the file is cleared
+    else:
+        with open(file_path, 'w'):  # 'w' mode creates a new empty file
+            pass
+
 class MapReduceService(mapreduce_pb2_grpc.MapReduceServiceServicer):
     def Map(self, request, context):
         print(" ✉️ Recieved a Map Request!")
         mapper_response = handle_map_request(request)
         
-        p = 0.8
+        p = 0.5
         if random.random() > p and mapper_response == "OK":
             print("❌ Mapper Failed!")
             mapper_response = "FAILED"
@@ -92,18 +97,21 @@ def handle_map_request(request):
         point = points[index].strip().split(",")
         point = [float(point[0]), float(point[1])]
         mapper_points.append(point)
-
+    centroidIndex_to_point={}
     for point in mapper_points:
         min_distance_index = calculate_min_distance(point, centroids)
         if min_distance_index in centroidIndex_to_point.keys():
             centroidIndex_to_point[min_distance_index].append(point)
         else:
             centroidIndex_to_point[min_distance_index] = [point]
-    
     if not os.path.exists(f"Data/Mappers/M{current_mapper_index}"):
         os.makedirs(f"Data/Mappers/M{current_mapper_index}")
     else:
         clear_directory(f"Data/Mappers/M{current_mapper_index}")
+        
+    for i in range(num_reducers):
+        clear_file(f"Data/Mappers/M{current_mapper_index}/partition_{i+1}.txt")
+
     for centroid_index in centroidIndex_to_point.keys():
         file_index = centroid_index % num_reducers + 1
         with open(f"Data/Mappers/M{current_mapper_index}/partition_{file_index}.txt", "a") as file:

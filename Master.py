@@ -22,7 +22,7 @@ def compose_return_reduce_request(reducer_idx, reducer_port):
     print(f"📨 Recieved a Return Reduce Response from PORT {reducer_port}: status {response.ok}")
     if (response.ok == 0):
         print("❌ Error in Return Reduce Response retrying...")
-        compose_return_reduce_request(reducer_idx, reducer_port)
+        return compose_return_reduce_request(reducer_idx, reducer_port)
     lock.acquire()
     COLLECTIING_REDUCE_ACK[reducer_idx] = response.ok
     lock.release()
@@ -43,7 +43,7 @@ def compose_map_request(begin, end, centroids, mapper_port, number_of_reducers):
     response = stub.Map(request)
     if (response.status == "FAILED"):
         print("❌ Error in Map Request retrying...")
-        compose_map_request(begin, end, centroids, mapper_port, number_of_reducers)
+        return compose_map_request(begin, end, centroids, mapper_port, number_of_reducers)
     print(f"📨 Recieved a Map Response from PORT {mapper_port}: status {response.status}")
     
 def compose_reduce_request(reducer_port, number_of_mappers):
@@ -61,7 +61,6 @@ def compose_reduce_request(reducer_port, number_of_mappers):
     channel = grpc.insecure_channel(f'localhost:{reducer_port}')
     stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
     response = stub.StartReduce(request)
-    print(response)
     print(f"📨 Recieved a Reduce Response from PORT {reducer_port}: status {response.ok}")
 
     return request
@@ -82,26 +81,15 @@ def Input_Split(points, Number_of_mappers):
 
 def check_convergence(centroids, new_centroids):
     epsilon = 0.0001
-    for a in centroids:
-        flag = 0
-        for b in new_centroids:
-            #NOTE: The crieria below can be changed
-            # print(a,b)
-            if (abs(a[0]-b[0])<epsilon and abs(a[1]-b[1])<epsilon):
-                flag = 1
-                break 
-        if flag == 0:
+    flag=True
+    for i in range(len(centroid)):
+        a=centroids[i]
+        b=new_centroids[i]
+        if (abs(a[0]-b[0])<epsilon and abs(a[1]-b[1])<epsilon):
+            continue
+        else:
             return False
-    for a in new_centroids:
-        flag = 0
-        for b in centroids:
-            if (abs(a[0]-b[0])<epsilon and abs(a[1]-b[1])<epsilon):
-                flag = 1
-                break 
-        if flag == 0:
-            return False
-    return True
-                
+    return flag
 
 if __name__ == "__main__":
     print("🧑🏻 Hello, I am a Master")
@@ -146,7 +134,6 @@ if __name__ == "__main__":
             mapper_thread.join()
         
         reducer_threads = []
-        print(len(reducer_ports))
         for port_index in range(len(reducer_ports)):
             print("💌 Sending Reduce request to PORT",reducer_ports[port_index])
             reducer_threads.append(threading.Thread(target=compose_reduce_request, args=(reducer_ports[port_index], Number_of_mappers)))
@@ -167,7 +154,7 @@ if __name__ == "__main__":
             reducer_thread.join()
 
         # post processing
-        for i in COLLECTIING_REDUCE_ACK.keys():
+        for i in sorted(COLLECTIING_REDUCE_ACK.keys()):
             if COLLECTIING_REDUCE_ACK[i] == 1:
                 with open(f"Data/Reducers/R{i}.txt", "r") as file:
                     for line in file:
@@ -180,6 +167,8 @@ if __name__ == "__main__":
             print("new centroid",new_centroids)
             break
         else:
+            print("old centroid",centroids)
+            print("new centroid",new_centroids)
             centroids = new_centroids
             print("🔄 Iteration", k+1)
     

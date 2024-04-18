@@ -101,7 +101,7 @@ class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
             ack = 0
         # with probability 0.8 set ok to 0 
         # with probability 0.2 set ok to 1
-        p = 0.8
+        p = 0.5
         if ack == 1 and random.random()  > p:
             ack = 0
         
