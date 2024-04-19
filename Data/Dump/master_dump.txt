@@ -1,17 +1,5 @@
 Hello, I am a Master
-Starting Iteration 1
-Input Split by Master Done using Scenario 1
-Sending Map Request to Mappers
-Mapper 1 Failed like Scenario 1, retrying...
-Mapper 1 Failed like Scenario 1, retrying...
-Mapping Done
-Sending Reduce Request to all Reducers
-Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
-Received an ack for starting reduciton from Reducer with id 2 : SUCCESS
-Asking Reducers to send the centroid data to Master
-Received all the centroid data from Reducers
-Centroid Compilation is done
-Starting Iteration 2
+Starting Iteration 1 wtih centroids [[1.4302438269507878, 2.4735967228568025], [-3.279264851148022, -6.531152677999264]]
 Input Split by Master Done using Scenario 1
 Sending Map Request to Mappers
 Mapping Done
@@ -21,25 +9,41 @@ Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
 Asking Reducers to send the centroid data to Master
 Received all the centroid data from Reducers
 Centroid Compilation is done
-Starting Iteration 3
+Starting Iteration 2 wtih centroids [[0.1337296553367391, 1.7394348553189953], [-4.5294834915905415, -4.734348570122942]]
 Input Split by Master Done using Scenario 1
 Sending Map Request to Mappers
 Mapping Done
 Sending Reduce Request to all Reducers
-Received an ack for starting reduciton from Reducer with id 2 : SUCCESS
+Reducer with id 2 Failed like Scenario 2, redirecting to next reducer with id: -1
+Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
 Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
 Asking Reducers to send the centroid data to Master
+Reducer 2 Failed like Scenario 2
 Received all the centroid data from Reducers
 Centroid Compilation is done
-Starting Iteration 4
+Starting Iteration 3 wtih centroids [[0.6926667239250385, 0.9628629458448641], [-5.212989080444559, -4.648219525502984]]
 Input Split by Master Done using Scenario 1
 Sending Map Request to Mappers
 Mapper 1 Failed like Scenario 1, retrying...
 Mapping Done
 Sending Reduce Request to all Reducers
-Received an ack for starting reduciton from Reducer with id 2 : SUCCESS
+Reducer with id 2 Failed like Scenario 2, redirecting to next reducer with id: -1
+Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
 Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
 Asking Reducers to send the centroid data to Master
+Reducer 2 Failed like Scenario 2
+Received all the centroid data from Reducers
+Centroid Compilation is done
+Starting Iteration 4 wtih centroids [[0.8838527655754169, 0.3583607359466962], [-5.785039242053399, -4.574045108536413]]
+Input Split by Master Done using Scenario 1
+Sending Map Request to Mappers
+Mapping Done
+Sending Reduce Request to all Reducers
+Reducer with id 2 Failed like Scenario 2, redirecting to next reducer with id: -1
+Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
+Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
+Asking Reducers to send the centroid data to Master
+Reducer 2 Failed like Scenario 2
 Received all the centroid data from Reducers
 Centroid Compilation is done
 Converged in Iteration 4

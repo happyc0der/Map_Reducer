@@ -87,7 +87,6 @@ def compose_reduce_request(reducer_port, number_of_mappers,number_of_reducer, pa
         next_port=random.sample(all_ports,1)
         print("FAILED TO SEND MESSAGE TO reducer. Redirecting to next reducer with port:",next_port[0])
         dump("Reducer with id "+str(4040-reducer_port)+ " Failed like Scenario 2, redirecting to next reducer with id: "+str(next_port[0]-4040))
-        partition=4040-next_port[0]
         return compose_reduce_request(next_port[0],number_of_mappers,number_of_reducer,partition,append=1)
         
     return
@@ -109,6 +108,7 @@ def Input_Split(points, Number_of_mappers):
 def check_convergence(centroids, new_centroids):
     epsilon = 0.0001
     flag=0
+    print(centroids,"and ",new_centroids)
     for i in range(len(centroids)):
         a=centroids[i]
         b=new_centroids[i]
@@ -149,12 +149,12 @@ if __name__ == "__main__":
         
     for k in range(Number_of_iterations):
         input_to_mappers = Input_Split(starting_points, Number_of_mappers)
-        dump("Starting Iteration " + str(k+1))
+        dump("Starting Iteration " + str(k+1) + " wtih centroids "+str(centroids))
         dump("Input Split by Master Done using Scenario 1")
         master_port = 4040
         mapper_ports = [master_port + i for i in range(1, Number_of_mappers + 1)]
         reducer_ports = [master_port - i for i in range(1, Number_of_reducers + 1)]
-        print(centroids)
+    
         mapper_threads = []
         # starting mappers 
         dump("Sending Map Request to Mappers")

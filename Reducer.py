@@ -42,7 +42,7 @@ def handle_start_reduce_request(response):
     global RESPONSES
     NUM_MAPPERS = response.num_mappers
     responsible_for = response.partitions 
-    append=response.append
+    # append=response.append
     mapper_port_number = []
     for i in range(NUM_MAPPERS):
         mapper_port_number.append(4040 + (i+1))
@@ -84,10 +84,7 @@ def handle_start_reduce_request(response):
         final_centroids.append([key,sum_x/count, sum_y/count]) 
     dump("Reduce Function has finished processing the data and calculated the final centroids.")
     # print the final list of centroids line wise into the file at ./Data/Reducers/R{REDUCER_ID}.txt
-    write_flag='w'
-    if append:
-        write_flag='a'
-        print(write_flag)
+    write_flag='a'
     with open(f"./Data/Reducers/R{REDUCER_ID}.txt", write_flag) as f:
         for centroid in final_centroids:
             f.write(f"{centroid[0]} {centroid[1]} {centroid[2]}\n")
@@ -117,6 +114,7 @@ class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
         with open(f"./Data/Reducers/R{REDUCER_ID}.txt", "r") as file:
             for line in file:
                 my_centroids.append([int(line.split(" ")[0]), float(line.split(" ")[1]),float(line.split(" ")[2])])
+        # clear the file
         send_centroids = [mapreduce_pb2.point_key(key=centroid[0],x=centroid[1],y=centroid[2]) for centroid in my_centroids]
         ack = -1
         if request.ok==1:
@@ -126,7 +124,7 @@ class MapReduceServiceServicer(mapreduce_pb2_grpc.MapReduceServiceServicer):
             ack = 0
         # with probability 0.8 set ok to 0 
         # with probability 0.2 set ok to 1
-        p = 0.8
+        p = 0.95
         if ack == 1 and random.random()  > p:
             ack = 0
             dump("Failed to send the centroids to Master, Retrying...")

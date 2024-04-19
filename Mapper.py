@@ -53,7 +53,7 @@ class MapReduceService(mapreduce_pb2_grpc.MapReduceServiceServicer):
         dump("Received a Map Request from Master.")
         mapper_response = handle_map_request(request)
         
-        p = 0.8
+        p = 0.95
         if random.random() > p and mapper_response == "OK":
             print("❌ Mapper Failed!")
             dump("Mapper Failed like Scenario 1")
