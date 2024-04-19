@@ -1,0 +1,42 @@
+Recieved a Start Reduce Request from Master
+Sending Reduce Request to all Mappers
+Received a Reduce Response from Mapper id 1
+Received a Reduce Response from Mapper id 2
+Shuffling and sorting the data received from Mappers
+Reduce Function has finished processing the data and calculated the final centroids.
+Finished Reducing and written the final centroids to file
+Starting the Reduction Process by sending ack to Master : SUCCESS
+Recieved a Request from Master to return the centroids.
+Failed to send the centroids to Master, Retrying...
+Recieved a Request from Master to return the centroids.
+Sent the centroids to Master
+Recieved a Start Reduce Request from Master
+Sending Reduce Request to all Mappers
+Received a Reduce Response from Mapper id 1
+Received a Reduce Response from Mapper id 2
+Shuffling and sorting the data received from Mappers
+Reduce Function has finished processing the data and calculated the final centroids.
+Finished Reducing and written the final centroids to file
+Starting the Reduction Process by sending ack to Master : SUCCESS
+Recieved a Request from Master to return the centroids.
+Sent the centroids to Master
+Recieved a Start Reduce Request from Master
+Sending Reduce Request to all Mappers
+Received a Reduce Response from Mapper id 1
+Received a Reduce Response from Mapper id 2
+Shuffling and sorting the data received from Mappers
+Reduce Function has finished processing the data and calculated the final centroids.
+Finished Reducing and written the final centroids to file
+Starting the Reduction Process by sending ack to Master : SUCCESS
+Recieved a Request from Master to return the centroids.
+Sent the centroids to Master
+Recieved a Start Reduce Request from Master
+Sending Reduce Request to all Mappers
+Received a Reduce Response from Mapper id 1
+Received a Reduce Response from Mapper id 2
+Shuffling and sorting the data received from Mappers
+Reduce Function has finished processing the data and calculated the final centroids.
+Finished Reducing and written the final centroids to file
+Starting the Reduction Process by sending ack to Master : SUCCESS
+Recieved a Request from Master to return the centroids.
+Sent the centroids to Master

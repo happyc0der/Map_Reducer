@@ -43,7 +43,7 @@ message returnReduce{
 
 message returnReduceResponse{
   int32 ok = 1;
-  repeated point centroids = 2;
+  repeated point_key centroids = 2;
 }
 
 message point{
@@ -51,6 +51,11 @@ message point{
   double y=2;
 }
 
+message point_key{
+  int32 key = 1;
+  double x =2;
+  double y=3;
+}
 message centroid_values{
   int32 key = 1;
   repeated point values = 2;

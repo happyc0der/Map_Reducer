@@ -1,0 +1,25 @@
+Hello, I am a Mapper 2
+Received a Map Request from Master.
+Sent a Response to Master that Mapping(Map) and Partitioning is finished
+Received a Reduce Request from Reducer.
+Received a Reduce Request from Reducer.
+Sent a Response to the Reducer with the key value pairs
+Sent a Response to the Reducer with the key value pairs
+Received a Map Request from Master.
+Sent a Response to Master that Mapping(Map) and Partitioning is finished
+Received a Reduce Request from Reducer.
+Received a Reduce Request from Reducer.
+Sent a Response to the Reducer with the key value pairs
+Sent a Response to the Reducer with the key value pairs
+Received a Map Request from Master.
+Sent a Response to Master that Mapping(Map) and Partitioning is finished
+Received a Reduce Request from Reducer.
+Received a Reduce Request from Reducer.
+Sent a Response to the Reducer with the key value pairs
+Sent a Response to the Reducer with the key value pairs
+Received a Map Request from Master.
+Sent a Response to Master that Mapping(Map) and Partitioning is finished
+Received a Reduce Request from Reducer.
+Received a Reduce Request from Reducer.
+Sent a Response to the Reducer with the key value pairs
+Sent a Response to the Reducer with the key value pairs

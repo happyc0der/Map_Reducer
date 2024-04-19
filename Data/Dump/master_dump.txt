@@ -1,0 +1,46 @@
+Hello, I am a Master
+Starting Iteration 1
+Input Split by Master Done using Scenario 1
+Sending Map Request to Mappers
+Mapper 1 Failed like Scenario 1, retrying...
+Mapper 1 Failed like Scenario 1, retrying...
+Mapping Done
+Sending Reduce Request to all Reducers
+Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
+Received an ack for starting reduciton from Reducer with id 2 : SUCCESS
+Asking Reducers to send the centroid data to Master
+Received all the centroid data from Reducers
+Centroid Compilation is done
+Starting Iteration 2
+Input Split by Master Done using Scenario 1
+Sending Map Request to Mappers
+Mapping Done
+Sending Reduce Request to all Reducers
+Received an ack for starting reduciton from Reducer with id 2 : SUCCESS
+Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
+Asking Reducers to send the centroid data to Master
+Received all the centroid data from Reducers
+Centroid Compilation is done
+Starting Iteration 3
+Input Split by Master Done using Scenario 1
+Sending Map Request to Mappers
+Mapping Done
+Sending Reduce Request to all Reducers
+Received an ack for starting reduciton from Reducer with id 2 : SUCCESS
+Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
+Asking Reducers to send the centroid data to Master
+Received all the centroid data from Reducers
+Centroid Compilation is done
+Starting Iteration 4
+Input Split by Master Done using Scenario 1
+Sending Map Request to Mappers
+Mapper 1 Failed like Scenario 1, retrying...
+Mapping Done
+Sending Reduce Request to all Reducers
+Received an ack for starting reduciton from Reducer with id 2 : SUCCESS
+Received an ack for starting reduciton from Reducer with id 1 : SUCCESS
+Asking Reducers to send the centroid data to Master
+Received all the centroid data from Reducers
+Centroid Compilation is done
+Converged in Iteration 4
+Finished writing the final centroids to the file
