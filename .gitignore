@@ -1,3 +1,15 @@
+# Runtime output written by the mappers, reducers and the dump logger.
 Data/Mappers
 Data/Reducers
 Data/Dump
+
+# Python build artefacts
+__pycache__/
+*.py[cod]
+
+# Virtual environments
+.venv/
+venv/
+
+# macOS
+.DS_Store

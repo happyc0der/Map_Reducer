@@ -1,49 +1,63 @@
 syntax = "proto3";
 
-// python -m grpc_tools.protoc -I.\RPC  --python_out=. --pyi_out=.\ --grpc_python_out=. .\RPC\mapreduce.proto
+// One service definition shared by all three programs: the master, the mappers
+// and the reducers each serve or call a subset of these RPCs.
+//
+// Regenerate the Python stubs into the repository root after editing this file
+// (run from the repository root):
+//
+//   python -m grpc_tools.protoc -IRPC --python_out=. --pyi_out=. --grpc_python_out=. RPC/mapreduce.proto
+//
+// That produces mapreduce_pb2.py, mapreduce_pb2.pyi and mapreduce_pb2_grpc.py,
+// which are committed so the project runs without grpcio-tools installed.
 
 package mapreduce;
 
 service MapReduceService {
+  // Master -> Mapper: map + partition one input split. Served by Mapper.py.
   rpc Map(MapRequest) returns (MapResponse);
+  // Reducer -> Mapper: fetch the key-value pairs of the given partitions.
+  // Served by Mapper.py.
   rpc Reduce(ReduceRequest) returns (ReduceResponse);
+  // Master -> Reducer: shuffle, sort and reduce. Served by Reducer.py.
   rpc StartReduce(StartReduceRequest) returns (StartReduceResponse);
+  // Master -> Reducer: collect the updated centroids. Served by Reducer.py.
   rpc returnCentroid(returnReduce) returns (returnReduceResponse);
 }
 
 message MapRequest {
-  int32 begin = 1;
-  int32 end = 2;
-  repeated point centroids = 3;
-  int32 num_reducers = 4;
-  bool append = 5;
+  int32 begin = 1;              // first input index of this split (inclusive)
+  int32 end = 2;                // last input index of this split (exclusive)
+  repeated point centroids = 3; // centroids from the previous iteration
+  int32 num_reducers = 4;       // R, i.e. how many partitions to write
+  bool append = 5;              // keep existing partition files instead of clearing them
 }
 
 message MapResponse {
-  string status = 1;
+  string status = 1; // "OK", or "FAILED" for a Scenario 1 failure
 }
 
 message StartReduceRequest{
-  repeated int32 partitions = 1;
-  int32 num_mappers = 2;
-  bool append = 3;
+  repeated int32 partitions = 1; // partition ids this reducer is responsible for
+  int32 num_mappers = 2;         // M, i.e. how many mappers to pull from
+  bool append = 3;               // set when a partition is reassigned after a failure
 }
 
 message StartReduceResponse{
-  int32 ok=1;
+  int32 ok=1; // 1 on success
 }
 
 message ReduceRequest {
-  repeated int32 partitions = 1;
+  repeated int32 partitions = 1; // partition ids the calling reducer wants
 }
 
 message returnReduce{
-  int32 ok = 1;
+  int32 ok = 1; // 1 = the master is ready to receive centroids
 }
 
 message returnReduceResponse{
-  int32 ok = 1;
-  repeated point_key centroids = 2;
+  int32 ok = 1;                     // 1 on success, 0 for a Scenario 1 failure
+  repeated point_key centroids = 2; // updated centroids, tagged with their id
 }
 
 message point{
@@ -51,11 +65,15 @@ message point{
   double y=2;
 }
 
+// A point together with the id of the centroid it belongs to.
 message point_key{
   int32 key = 1;
   double x =2;
   double y=3;
 }
+
+// All the points assigned to one centroid id: the output of Map as seen by a
+// reducer, and the input of the shuffle & sort step.
 message centroid_values{
   int32 key = 1;
   repeated point values = 2;
@@ -64,4 +82,3 @@ message centroid_values{
 message ReduceResponse {
   repeated centroid_values dictionary = 1;
 }
-
