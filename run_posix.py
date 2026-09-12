@@ -32,6 +32,16 @@ LOG_DIR = os.path.join(REPO_ROOT, "logs")
 GENERATED_DIRECTORIES = ["Data/Mappers", "Data/Reducers", "Data/Dump"]
 GENERATED_FILES = ["Data/initial_centroids.txt", "Data/centroids.txt"]
 
+# Master.py, Mapper.py and Reducer.py print emoji. On Windows, stdio that is
+# redirected to a file or a pipe defaults to the ANSI code page (cp1252), which
+# cannot encode them, and the process dies with a UnicodeEncodeError before it
+# serves anything. run.py escapes this because a cmd.exe window is a console.
+# Forcing UTF-8 on the children fixes it and changes nothing on macOS or Linux.
+CHILD_ENVIRONMENT_OVERRIDES = {
+    "PYTHONUTF8": "1",
+    "PYTHONIOENCODING": "utf-8",
+}
+
 # How long to wait for a worker's port to start accepting connections.
 STARTUP_TIMEOUT_SECONDS = 15.0
 # How long to wait for a worker to exit after being asked to terminate.
@@ -48,11 +58,30 @@ def reducer_port(index):
     return MASTER_PORT - index - 1
 
 
+def child_environment():
+    """The environment the master and the workers are started with."""
+    environment = os.environ.copy()
+    environment.update(CHILD_ENVIRONMENT_OVERRIDES)
+    return environment
+
+
 def port_is_open(port, host="localhost", timeout=0.2):
-    """Return True when something is already listening on ``port``."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.settimeout(timeout)
-        return sock.connect_ex((host, port)) == 0
+    """Return True when something is already listening on ``port``.
+
+    Every address family getaddrinfo offers is tried: the workers bind the IPv6
+    wildcard ("[::]"), and an IPv4-only probe can miss that on a platform whose
+    IPv6 sockets do not accept IPv4 connections.
+    """
+    try:
+        candidates = socket.getaddrinfo(host, port, type=socket.SOCK_STREAM)
+    except socket.gaierror:
+        return False
+    for family, socket_type, protocol, _, address in candidates:
+        with socket.socket(family, socket_type, protocol) as sock:
+            sock.settimeout(timeout)
+            if sock.connect_ex(address) == 0:
+                return True
+    return False
 
 
 def reset_data_directories():
@@ -142,6 +171,7 @@ class Cluster:
             cwd=REPO_ROOT,
             stdout=log_file,
             stderr=subprocess.STDOUT,
+            env=child_environment(),
         )
 
     def _wait_until_listening(self):
@@ -191,7 +221,18 @@ def run_master(num_mappers, num_reducers, num_centroids, num_iterations, python=
         str(num_centroids),
         str(num_iterations),
     ]
-    return subprocess.run(command, cwd=REPO_ROOT, capture_output=capture, text=True, check=False)
+    return subprocess.run(
+        command,
+        cwd=REPO_ROOT,
+        capture_output=capture,
+        text=True,
+        # Decode as UTF-8 rather than the locale encoding, to match the
+        # environment the child is given.
+        encoding="utf-8",
+        errors="replace",
+        env=child_environment(),
+        check=False,
+    )
 
 
 def main(argv):

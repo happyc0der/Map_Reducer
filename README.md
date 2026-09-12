@@ -111,7 +111,11 @@ foreground, and shuts the workers down when the master exits — including on
 Ctrl-C. Worker output goes to `logs/mapper_<id>.log` and `logs/reducer_<id>.log`.
 
 It works on Windows too; you just get log files instead of one window per
-process.
+process. The three programs print emoji, and Windows defaults redirected output
+to the ANSI code page, which cannot encode them — so `run_posix.py` starts its
+children with `PYTHONUTF8=1`. If you redirect their output yourself on Windows,
+do the same, or the process dies with a `UnicodeEncodeError` before it serves
+anything.
 
 To start the processes by hand instead (here `M=3`, `R=2`, `K=2`, 10 iterations):
 
