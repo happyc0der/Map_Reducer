@@ -1,0 +1,93 @@
+name: tests
+
+# The pipeline is three separate processes talking over gRPC on fixed localhost
+# ports, so every job gets a clean runner to itself and the suite brings its own
+# mappers and reducers up and down per test.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # Pinned: an unpinned ruff can start enforcing new rules and turn this red
+      # without anything in the repository having changed.
+      - run: pip install "ruff==0.16.*"
+      - run: ruff check --output-format=github .
+
+  test:
+    name: ${{ matrix.os }} / py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+    strategy:
+      # Report every combination, rather than hiding the rest behind the first
+      # failure.
+      fail-fast: false
+      matrix:
+        include:
+          - { os: ubuntu-latest, python-version: "3.10" }
+          - { os: ubuntu-latest, python-version: "3.11" }
+          - { os: ubuntu-latest, python-version: "3.12" }
+          - { os: ubuntu-latest, python-version: "3.13" }
+          - { os: macos-latest, python-version: "3.12" }
+          - { os: windows-latest, python-version: "3.12" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install grpcio protobuf
+      - name: Run the test suite
+        run: python -m unittest -v test_kmeans
+      - name: Upload the worker logs and dumps
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-${{ matrix.os }}-py${{ matrix.python-version }}
+          path: |
+            logs/
+            Data/Dump/
+          if-no-files-found: ignore
+
+  fault-tolerance:
+    name: fault injection
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install grpcio protobuf
+      - name: Force-stop a mapper and a reducer mid-run
+        # These tests kill a worker half way through its sleep window, so the
+        # window is widened for a shared CI runner.
+        env:
+          RUN_FAULT_TESTS: "1"
+          FAULT_SLEEP_SECONDS: "15"
+        run: python -m unittest -v test_kmeans.TestFaultTolerance
+      - name: Upload the worker logs and dumps
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs-fault-tolerance
+          path: |
+            logs/
+            Data/Dump/
+          if-no-files-found: ignore

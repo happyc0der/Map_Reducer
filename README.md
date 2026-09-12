@@ -70,11 +70,14 @@ On the command line the mapper and reducer indices are **0-based**
 
 ## Running it
 
-Requires Python 3.10+ and `grpcio`:
+Requires Python 3.10+, `grpcio` and `protobuf`:
 
 ```bash
-pip install grpcio
+pip install grpcio protobuf
 ```
+
+`protobuf` is a separate install: `grpcio` does not depend on it, but the
+generated `mapreduce_pb2.py` stubs import it.
 
 Start the mappers and reducers **first**, then the master. The mappers and
 reducers are long-lived servers that stay up across iterations; the master exits
@@ -147,7 +150,8 @@ python -m unittest -v test_kmeans
 ```
 
 There is no test framework to install — `unittest` is in the standard library,
-and the tests need nothing beyond the `grpcio` the pipeline already requires.
+and the tests need nothing beyond the `grpcio` and `protobuf` the pipeline
+already requires.
 Each test starts its own mappers and reducers through `run_posix.Cluster` and
 shuts them down afterwards, so **nothing may already be listening on the
 mapper/reducer ports**; the suite refuses to start rather than quietly talking to
@@ -197,6 +201,21 @@ The suite is organised around the assignment's evaluation criteria:
 
 `TestReferenceImplementation` tests the reference K-Means itself against a
 hand-worked example, so a broken reference cannot hide a bug in the pipeline.
+
+### Continuous integration
+
+[.github/workflows/tests.yml](.github/workflows/tests.yml) runs on every push to
+`main`, on pull requests, and on demand from the Actions tab:
+
+| Job | What it does |
+| --- | --- |
+| `ruff` | `ruff check` against [ruff.toml](ruff.toml), with findings annotated inline on the diff |
+| `test` | The suite on Python 3.10–3.13 on Linux, plus 3.12 on macOS and Windows |
+| `fault injection` | The `RUN_FAULT_TESTS` suite, with a wider kill window (`FAULT_SLEEP_SECONDS=15`) because a shared runner is slower |
+
+Each job gets a clean runner, so the fixed localhost ports are always free. On a
+failure the worker logs and the dump files are uploaded as artifacts, since the
+master's output is captured inside the tests rather than printed.
 
 ### Skips you may see
 

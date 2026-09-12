@@ -15,7 +15,11 @@ sleep window to kill it, so they are skipped unless you ask for them:
 
     RUN_FAULT_TESTS=1 python -m unittest -v test_kmeans
 
-Only the standard library is needed, plus the grpcio the pipeline already needs.
+Those tests kill a worker half way through its sleep window; on a slow machine
+widen the window with FAULT_SLEEP_SECONDS=15.
+
+Only the standard library is needed, plus the grpcio and protobuf the pipeline
+already needs.
 
 Coverage of the assignment
 --------------------------
@@ -744,7 +748,9 @@ class TestScenarioOneFailures(CentroidAssertions):
 class TestFaultTolerance(CentroidAssertions):
     """Failure Scenario 2: "we may force stop a mapper or reducer process"."""
 
-    SLEEP_TIME = 6
+    # The window in which the victim is killed. A slow or loaded machine needs a
+    # wider one, so CI raises it via FAULT_SLEEP_SECONDS.
+    SLEEP_TIME = int(os.environ.get("FAULT_SLEEP_SECONDS", "6"))
     NUM_ITERATIONS = 3
 
     def _run_with_one_worker_killed(self, kind, index, num_mappers, num_reducers, num_centroids):
