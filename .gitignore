@@ -13,3 +13,6 @@ venv/
 
 # macOS
 .DS_Store
+
+# Worker logs written by run_posix.py
+logs/
