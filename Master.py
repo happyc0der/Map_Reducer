@@ -48,9 +48,29 @@ COLLECTED_REDUCE_ACKS = {}
 lock = threading.Lock()
 
 
+def use_utf8_stdio():
+    """Keep the log lines printable and live whatever stdout happens to be.
+
+    Two things go wrong when this output is redirected to a file or a pipe rather
+    than a terminal, and both are invisible when launching through run.py,
+    because a cmd.exe window is a real console:
+
+    * Windows defaults stdout to the ANSI code page (cp1252), which cannot encode
+      the emoji in the messages below, so the very first print would raise
+      UnicodeEncodeError and kill the process.
+    * Python switches from line buffering to 8 KB block buffering, so a log file
+      stays empty while the run is in progress, and anything still buffered is
+      lost if the process is killed -- exactly what happens when testing the
+      force-stop failure scenario.
+    """
+    for stream in (sys.stdout, sys.stderr):
+        if stream is not None and hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace", line_buffering=True)
+
+
 def dump(message):
     """Append one line to the master's dump file."""
-    with open(DUMP_PATH, "a") as file:
+    with open(DUMP_PATH, "a", encoding="utf-8") as file:
         file.write(message + "\n")
 
 
@@ -188,6 +208,7 @@ if __name__ == "__main__":
     # would just leave some of them idle.
     if Number_of_centroids < Number_of_reducers:
         Number_of_reducers = Number_of_centroids
+    use_utf8_stdio()
     os.makedirs(os.path.dirname(DUMP_PATH), exist_ok=True)
     print("🧑🏻 Hello, I am a Master")
     dump("Hello, I am a Master")

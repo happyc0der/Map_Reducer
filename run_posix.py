@@ -32,16 +32,6 @@ LOG_DIR = os.path.join(REPO_ROOT, "logs")
 GENERATED_DIRECTORIES = ["Data/Mappers", "Data/Reducers", "Data/Dump"]
 GENERATED_FILES = ["Data/initial_centroids.txt", "Data/centroids.txt"]
 
-# Master.py, Mapper.py and Reducer.py print emoji. On Windows, stdio that is
-# redirected to a file or a pipe defaults to the ANSI code page (cp1252), which
-# cannot encode them, and the process dies with a UnicodeEncodeError before it
-# serves anything. run.py escapes this because a cmd.exe window is a console.
-# Forcing UTF-8 on the children fixes it and changes nothing on macOS or Linux.
-CHILD_ENVIRONMENT_OVERRIDES = {
-    "PYTHONUTF8": "1",
-    "PYTHONIOENCODING": "utf-8",
-}
-
 # How long to wait for a worker's port to start accepting connections.
 STARTUP_TIMEOUT_SECONDS = 15.0
 # How long to wait for a worker to exit after being asked to terminate.
@@ -56,13 +46,6 @@ def mapper_port(index):
 def reducer_port(index):
     """Port of reducer ``index`` (0-based on the command line, so id index + 1)."""
     return MASTER_PORT - index - 1
-
-
-def child_environment():
-    """The environment the master and the workers are started with."""
-    environment = os.environ.copy()
-    environment.update(CHILD_ENVIRONMENT_OVERRIDES)
-    return environment
 
 
 def port_is_open(port, host="localhost", timeout=0.2):
@@ -171,7 +154,6 @@ class Cluster:
             cwd=REPO_ROOT,
             stdout=log_file,
             stderr=subprocess.STDOUT,
-            env=child_environment(),
         )
 
     def _wait_until_listening(self):
@@ -226,11 +208,11 @@ def run_master(num_mappers, num_reducers, num_centroids, num_iterations, python=
         cwd=REPO_ROOT,
         capture_output=capture,
         text=True,
-        # Decode as UTF-8 rather than the locale encoding, to match the
-        # environment the child is given.
+        # The three programs reconfigure their own stdio to UTF-8 so their emoji
+        # survive being redirected, so decode as UTF-8 rather than the locale
+        # encoding.
         encoding="utf-8",
         errors="replace",
-        env=child_environment(),
         check=False,
     )
 

@@ -111,11 +111,7 @@ foreground, and shuts the workers down when the master exits — including on
 Ctrl-C. Worker output goes to `logs/mapper_<id>.log` and `logs/reducer_<id>.log`.
 
 It works on Windows too; you just get log files instead of one window per
-process. The three programs print emoji, and Windows defaults redirected output
-to the ANSI code page, which cannot encode them — so `run_posix.py` starts its
-children with `PYTHONUTF8=1`. If you redirect their output yourself on Windows,
-do the same, or the process dies with a `UnicodeEncodeError` before it serves
-anything.
+process.
 
 To start the processes by hand instead (here `M=3`, `R=2`, `K=2`, 10 iterations):
 
@@ -262,6 +258,18 @@ Data/
 ├─ initial_centroids.txt    # the randomly sampled starting centroids
 └─ centroids.txt            # the final centroids
 ```
+
+### Redirected output
+
+The three programs call `use_utf8_stdio()` on startup, which matters whenever
+their output goes to a file or a pipe rather than a terminal — as it does under
+`run_posix.py`, and under the tests:
+
+* the log messages contain emoji, and Windows defaults redirected stdout to the
+  ANSI code page, which cannot encode them; without this the first `print` would
+  kill the process with a `UnicodeEncodeError`;
+* Python block-buffers redirected output, so a log file would stay empty mid-run
+  and lose anything still buffered when the process is force-stopped.
 
 `Data/Mappers`, `Data/Reducers` and `Data/Dump` are generated output and are
 gitignored, so they will not exist in a fresh clone — each process creates the

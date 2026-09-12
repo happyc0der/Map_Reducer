@@ -92,7 +92,6 @@ import mapreduce_pb2
 from run_posix import (
     REPO_ROOT,
     Cluster,
-    child_environment,
     mapper_port,
     port_is_open,
     reducer_port,
@@ -772,7 +771,6 @@ class TestFaultTolerance(CentroidAssertions):
                 text=True,
                 encoding="utf-8",
                 errors="replace",
-                env=child_environment(),
             )
             # Kill the victim while it is still sleeping, so the master's RPC to
             # it fails and the task has to be redirected.
