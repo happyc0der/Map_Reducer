@@ -22,8 +22,8 @@ jobs:
     name: ruff
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       # Pinned: an unpinned ruff can start enforcing new rules and turn this red
@@ -48,8 +48,8 @@ jobs:
           - { os: macos-latest, python-version: "3.12" }
           - { os: windows-latest, python-version: "3.12" }
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
       - run: pip install grpcio protobuf
@@ -57,7 +57,7 @@ jobs:
         run: python -m unittest -v test_kmeans
       - name: Upload the worker logs and dumps
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: logs-${{ matrix.os }}-py${{ matrix.python-version }}
           path: |
@@ -70,8 +70,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
       - run: pip install grpcio protobuf
@@ -84,7 +84,7 @@ jobs:
         run: python -m unittest -v test_kmeans.TestFaultTolerance
       - name: Upload the worker logs and dumps
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: logs-fault-tolerance
           path: |
