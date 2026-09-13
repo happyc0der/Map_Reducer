@@ -393,36 +393,51 @@ class TestProtocol(CentroidAssertions):
 
 
 class TestRequestConstructionFailure(CentroidAssertions):
-    """The master's guard around building a StartReduceRequest.
+    """The master's guards around building a request message.
 
-    Building the message is local work, but it allocates, so it can fail under
-    memory pressure -- a MemoryError is an Exception, so the guard catches it.
-    The guard must report the failure and return: falling through would touch an
-    unbound ``request``, and the resulting UnboundLocalError would be caught by
-    the RPC error handler below it and misreported as the reducer having died,
-    handing the partition to a different reducer over a problem that is the
-    master's own.
+    Building a request is local work, but it allocates, so it can fail under
+    memory pressure -- and MemoryError is an Exception, so these guards catch it.
+    Each one has to report the failure and return, because the alternative is
+    that a failure local to the master gets reported as a dead worker and its
+    task handed to a different one.
 
-    This path cannot be reached by driving the pipeline from outside, so the
+    Neither path can be reached by driving the pipeline from outside, so the
     allocation failure is injected directly.
     """
 
-    def test_it_is_reported_and_does_not_look_like_a_dead_reducer(self):
+    def _inject_failure(self, message_name, call):
+        """Make one message class raise, then run ``call`` and capture the console."""
         reset_data_directories()
         master = load_master_module()
         console = io.StringIO()
         with mock.patch.object(
             master.mapreduce_pb2,
-            "StartReduceRequest",
+            message_name,
             side_effect=MemoryError("simulated allocation failure"),
         ), contextlib.redirect_stdout(console):
             # Must not raise, and must not return a redirected retry.
-            self.assertIsNone(master.compose_reduce_request(4039, 1, 1, 1))
+            self.assertIsNone(call(master))
+        return console.getvalue(), read_master_dump()
 
-        self.assertIn("❌ Error in Start Reduce Request", console.getvalue())
-        dump = read_master_dump()
+    def test_a_start_reduce_request_failure_does_not_look_like_a_dead_reducer(self):
+        console, dump = self._inject_failure(
+            "StartReduceRequest",
+            lambda master: master.compose_reduce_request(4039, 1, 1, 1),
+        )
+        self.assertIn("❌ Error in Start Reduce Request", console)
         self.assertIn("Could not build the Start Reduce Request for Reducer with id 1", dump)
         self.assertNotIn("redirecting to next reducer", dump)
+        self.assertNotIn("Scenario 2", dump)
+
+    def test_a_map_request_failure_does_not_look_like_a_dead_mapper(self):
+        console, dump = self._inject_failure(
+            "MapRequest",
+            lambda master: master.compose_map_request(0, 5, [[0.0, 0.0]], 4041, 1, 1),
+        )
+        self.assertIn("❌ Error in Map Request", console)
+        self.assertNotIn("retrying...", console)
+        self.assertIn("Could not build the Map Request for Mapper with id 1", dump)
+        self.assertNotIn("redirecting to next mapper", dump)
         self.assertNotIn("Scenario 2", dump)
 
 

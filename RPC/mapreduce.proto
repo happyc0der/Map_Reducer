@@ -10,6 +10,13 @@ syntax = "proto3";
 //
 // That produces mapreduce_pb2.py, mapreduce_pb2.pyi and mapreduce_pb2_grpc.py,
 // which are committed so the project runs without grpcio-tools installed.
+//
+// The committed stubs were generated with protobuf 4.25.1 and carry no runtime
+// version gate, so they import under any reasonably recent protobuf. Stubs
+// regenerated with a newer protoc add a ValidateProtobufRuntimeVersion call that
+// requires a runtime at least as new as the compiler, so regenerate only when
+// you mean to, and reinstall protobuf to match if you do. The message and
+// service definitions themselves are unaffected.
 
 package mapreduce;
 

@@ -19,8 +19,8 @@ final output to its own directory, as the assignment requires.
 | [run_posix.py](run_posix.py) | macOS/Linux launcher; also the `Cluster` helper the tests reuse |
 | [test_kmeans.py](test_kmeans.py) | Test suite, including a from-scratch reference K-Means to check the result against |
 | [RPC/mapreduce.proto](RPC/mapreduce.proto) | The single gRPC service shared by all three programs |
-| `mapreduce_pb2*.py` | Stubs generated from the `.proto`; committed, regenerate only after editing the proto |
-| [check.ipynb](check.ipynb) | Scratch notebook that plots the input points and the final centroids |
+| `mapreduce_pb2*.py` | Stubs generated from the `.proto`; committed, so regenerate only after editing it — see the note in the proto |
+| [check.ipynb](check.ipynb) | Scratch notebook that plots the input points and the final centroids (needs `matplotlib` and `numpy`, which nothing else here does) |
 
 ### Ports
 
@@ -155,7 +155,7 @@ already requires.
 Each test starts its own mappers and reducers through `run_posix.Cluster` and
 shuts them down afterwards, so **nothing may already be listening on the
 mapper/reducer ports**; the suite refuses to start rather than quietly talking to
-a stale worker. The 63 tests take a few seconds in total, because the sample
+a stale worker. The 64 tests take a few seconds in total, because the sample
 input is only 25 points.
 
 The fault-injection tests have to wait inside a worker's sleep window to kill it,
@@ -284,6 +284,13 @@ reducers keep their own dump files.
 
 ## Known limitations
 
+* An iteration that leaves a centroid with no points assigned to it ends the run
+  with an `IndexError`. Centroid compilation only produces entries for keys the
+  reducers reported, so an empty cluster shortens the list, and
+  `check_convergence` compares the old and new lists position by position. Which
+  centroids are affected depends on the random initial sample, so it shows up
+  intermittently, most often with a larger K on this small input. The tests skip
+  rather than fail when they hit it.
 * `Data/Reducers/R<i>.txt` is only ever appended to, so it accumulates one block
   of centroids per iteration. This is harmless because the master keys the
   values it reads back by centroid id and the newest line for a key wins, but

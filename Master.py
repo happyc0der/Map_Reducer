@@ -110,15 +110,27 @@ def compose_map_request(begin, end, centroids, mapper_port, number_of_mappers, n
     to 1 when this split is being re-run on a *different* mapper (Scenario 2),
     so the receiving mapper keeps the split it already owns.
     """
-    request = mapreduce_pb2.MapRequest()
-    request.begin = begin
-    request.end = end
-    request.append = append
-    for centroid in centroids:
-        point = mapreduce_pb2.point(x=centroid[0], y=centroid[1])
-        request.centroids.append(point)
     mapper_id = mapper_port - MASTER_PORT
-    request.num_reducers = number_of_reducers
+    try:
+        request = mapreduce_pb2.MapRequest()
+        request.begin = begin
+        request.end = end
+        request.append = append
+        for centroid in centroids:
+            point = mapreduce_pb2.point(x=centroid[0], y=centroid[1])
+            request.centroids.append(point)
+        request.num_reducers = number_of_reducers
+    except Exception:
+        # The same guard as in compose_reduce_request: building the message is
+        # local work, but it allocates one point per centroid, so it can fail
+        # under memory pressure. Returning is what keeps a local failure from
+        # being reported as a dead mapper -- this runs in its own thread, so
+        # letting it propagate would kill the thread with a traceback and leave
+        # the master to carry on as if the split had been mapped.
+        print("❌ Error in Map Request")
+        dump("Could not build the Map Request for Mapper with id " + str(mapper_id))
+        return
+
     try:
         channel = grpc.insecure_channel(f"localhost:{mapper_port}")
         stub = mapreduce_pb2_grpc.MapReduceServiceStub(channel)
