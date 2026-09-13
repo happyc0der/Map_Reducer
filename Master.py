@@ -149,8 +149,20 @@ def compose_reduce_request(reducer_port, number_of_mappers, number_of_reducer, p
     If the reducer is unreachable (Scenario 2) the partition is handed to a
     randomly chosen surviving reducer with ``append=1``.
     """
-    request = mapreduce_pb2.StartReduceRequest()
     reducer_id = MASTER_PORT - reducer_port
+    try:
+        request = mapreduce_pb2.StartReduceRequest()
+    except Exception:
+        # Building the message is local work, but it still allocates, so it can
+        # fail under memory pressure. Returning here matters: carrying on would
+        # touch an unbound `request`, and the resulting UnboundLocalError would
+        # be caught below and misreported as this reducer having died, sending
+        # the partition to a different reducer for a problem that is the
+        # master's own.
+        print("❌ Error in Start Reduce Request")
+        dump("Could not build the Start Reduce Request for Reducer with id " + str(reducer_id))
+        return
+
     try:
         request.partitions.append(partition)
         request.num_mappers = number_of_mappers

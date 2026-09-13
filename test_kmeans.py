@@ -81,12 +81,16 @@ matter for a tight comparison:
 """
 
 import ast
+import contextlib
+import importlib.util
+import io
 import os
 import re
 import subprocess
 import sys
 import time
 import unittest
+from unittest import mock
 
 import mapreduce_pb2
 from run_posix import (
@@ -236,6 +240,20 @@ def _repeated_field_names(message_class):
     return names
 
 
+def load_master_module():
+    """Import Master.py as a module, without running its __main__ block.
+
+    Lets a test call the master's functions directly, for paths that cannot be
+    reached by driving the pipeline from outside.
+    """
+    spec = importlib.util.spec_from_file_location(
+        "master_under_test", os.path.join(REPO_ROOT, "Master.py")
+    )
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def read_master_dump():
     with open(MASTER_DUMP_PATH) as file:
         return file.read()
@@ -372,6 +390,40 @@ class TestProtocol(CentroidAssertions):
             self.assertEqual(dump.count("Sending Reduce Request to all Mappers"), iterations)
             for mapper_id in range(1, num_mappers + 1):
                 self.assertIn(f"Received a Reduce Response from Mapper id {mapper_id}", dump)
+
+
+class TestRequestConstructionFailure(CentroidAssertions):
+    """The master's guard around building a StartReduceRequest.
+
+    Building the message is local work, but it allocates, so it can fail under
+    memory pressure -- a MemoryError is an Exception, so the guard catches it.
+    The guard must report the failure and return: falling through would touch an
+    unbound ``request``, and the resulting UnboundLocalError would be caught by
+    the RPC error handler below it and misreported as the reducer having died,
+    handing the partition to a different reducer over a problem that is the
+    master's own.
+
+    This path cannot be reached by driving the pipeline from outside, so the
+    allocation failure is injected directly.
+    """
+
+    def test_it_is_reported_and_does_not_look_like_a_dead_reducer(self):
+        reset_data_directories()
+        master = load_master_module()
+        console = io.StringIO()
+        with mock.patch.object(
+            master.mapreduce_pb2,
+            "StartReduceRequest",
+            side_effect=MemoryError("simulated allocation failure"),
+        ), contextlib.redirect_stdout(console):
+            # Must not raise, and must not return a redirected retry.
+            self.assertIsNone(master.compose_reduce_request(4039, 1, 1, 1))
+
+        self.assertIn("❌ Error in Start Reduce Request", console.getvalue())
+        dump = read_master_dump()
+        self.assertIn("Could not build the Start Reduce Request for Reducer with id 1", dump)
+        self.assertNotIn("redirecting to next reducer", dump)
+        self.assertNotIn("Scenario 2", dump)
 
 
 class TestEndToEnd(CentroidAssertions):

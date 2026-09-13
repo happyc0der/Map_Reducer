@@ -155,7 +155,7 @@ already requires.
 Each test starts its own mappers and reducers through `run_posix.Cluster` and
 shuts them down afterwards, so **nothing may already be listening on the
 mapper/reducer ports**; the suite refuses to start rather than quietly talking to
-a stale worker. The 62 tests take a few seconds in total, because the sample
+a stale worker. The 63 tests take a few seconds in total, because the sample
 input is only 25 points.
 
 The fault-injection tests have to wait inside a worker's sleep window to kill it,
@@ -196,6 +196,7 @@ The suite is organised around the assignment's evaluation criteria:
 | Reduce output is the updated centroid, in the reducer's own directory | `test_a_reduced_centroid_is_the_mean_of_its_group`, `test_reducer_output_has_well_formed_lines_owned_by_that_reducer` |
 | Centroid compilation into a single file, and random initial centroids from the input | `test_final_centroids_are_compiled_from_the_reducer_output`, `TestEndToEnd.test_the_initial_centroids_are_sampled_from_the_input` |
 | Fault tolerance, Scenario 1 (self-reported failure) | `TestScenarioOneFailures` |
+| Handling a failure to even build a request (e.g. under memory pressure) | `TestRequestConstructionFailure` |
 | Fault tolerance, Scenario 2 (force-stopped process) | `TestFaultTolerance` |
 | Required output: iteration number, gRPC calls, SUCCESS/FAILURE per worker, and the centroids of each iteration including the initial ones | `TestLogging` |
 
